@@ -8,6 +8,6 @@ router.get('/:id', articlesCtrl.getOneArticle);
 router.post('/', articlesCtrl.addArticle);
 router.post('/:id/like');
 router.put('/:id');
-router.delete('/:id');
+router.delete('/:id', articlesCtrl.deleteOneArticle);
 
 module.exports = router;
