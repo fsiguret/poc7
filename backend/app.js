@@ -1,23 +1,10 @@
 const express = require('express');
-const mysql = require('mysql');
 const bodyParser = require('body-parser');
 
+const userRoutes = require('./routes/users');
+const articleRoutes = require('./routes/articles');
+
 const app = express();
-
-const connection = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'dbuser',
-    password : 's3krefg7',
-    database : 'MANIA'
-});
-
-connection.connect(function (err) {
-    if(err) {
-        console.log("La connetion à Mysql à réussie !");
-    } else {
-        console.log("La connetion à Mysql à échouée.");
-    }
-});
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -27,5 +14,8 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
+
+app.use('/api/auth', userRoutes);
+app.use('/api/articles', articleRoutes);
 
 module.exports = app;
