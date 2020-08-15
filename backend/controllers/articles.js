@@ -1,4 +1,5 @@
 const mysql = require('mysql');
+const fileUpload = require('express-fileupload');
 const connection = require('../config/config');
 
 exports.getAllArticles = (req, res, next) => {
@@ -15,21 +16,21 @@ exports.getAllArticles = (req, res, next) => {
 };
 
 exports.addArticle = (req, res, next) => {
-  let isJson = ((!(req.file === null || req.file === undefined)));
 
-  if(!isJson){
+  if (!req.files || Object.keys(req.files).length === 0) {
     let sql = `INSERT INTO Articles (userId, text, date)
-                VALUES (?,?,?)`;
-    let values = [req.body.userId, req.body.text, req.body.date];
+                VALUES (?,?, NOW())`;
+
+    let values = [req.body.userId, req.body.text];
 
     connection.query(sql, values, (error, results, fields) => {
       if(error) {
-        res.status(500).send("L'article n'a pas pu être enregistré.");
+        res.status(500).send("L'article n'a pas pu être enregistré. " + error);
       } else {
-        res.status(201).send("L'article a bien été enregistré.");
+        res.status(201).send("L'article a bien été enregistré sans fichier.");
       }
     });
-  } else if(isJson) {
+  } else  {
     //TODO gestion de l'ajout de l'image.
   }
 };
@@ -47,7 +48,24 @@ exports.getOneArticle = (req, res, next) => {
 };
 
 exports.changeArticle = (req, res, next) => {
+  let isJson = ((!(req.file === null || req.file === undefined)));
 
+  if(!isJson){
+    let sql = `UPDATE Articles
+                SET text = ?`;
+
+    let values = [req.body.text];
+
+    connection.query(sql, values, (error, results, fields) => {
+      if(error) {
+        res.status(500).send("L'article n'a pas pu être modifiée.");
+      } else {
+        res.status(201).send("L'article a bien été modifié.");
+      }
+    });
+  } else if(isJson) {
+    //TODO gestion de modification de l'image.
+  }
 };
 
 exports.deleteOneArticle = (req, res, next) => {
@@ -64,5 +82,30 @@ exports.deleteOneArticle = (req, res, next) => {
 };
 
 exports.likeOrDislike = (req, res, next) => {
+  let articleId = req.params.id;
+  let userId = req.body.userId;
+  let like = parseInt(req.body.like, 10);
+
+  let sql = `SELECT * FROM UserLikes
+                WHERE articleId = ?`;
+
+  let value = [articleId];
+
+  connection.query(sql,value,(error, userLikes, fields) => {
+    if(error) {
+      res.status(500).send("Une erreur est survenue : " + error);
+    } else {
+
+      if(like > 0) {
+        let sql = `INSERT INTO Articles
+              SET likes = likes + ?`;
+        console.log(userLikes)
+
+      } else if (like < 0) {
+
+      }
+    }
+  });
+
 
 };

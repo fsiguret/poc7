@@ -1,5 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const fileUpload = require('express-fileupload');
 
 const userRoutes = require('./routes/users');
 const articleRoutes = require('./routes/articles');
@@ -14,6 +15,7 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
+app.use(fileUpload({ safeFileNames : true }));
 
 app.use('/api/auth', userRoutes);
 app.use('/api/articles', articleRoutes);
