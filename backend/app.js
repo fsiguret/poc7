@@ -15,7 +15,14 @@ app.use((req, res, next) => {
 });
 
 app.use(bodyParser.json());
-app.use(fileUpload({ safeFileNames : true }));
+
+app.use(fileUpload({
+    safeFileNames : true,
+    createParentPath: true,
+    preserveExtension: true,
+    limits: { fileSize: 50 * 1024 * 1024 } //50Mo
+
+}));
 
 app.use('/api/auth', userRoutes);
 app.use('/api/articles', articleRoutes);
