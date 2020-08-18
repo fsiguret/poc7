@@ -1,4 +1,3 @@
-const mysql = require('mysql');
 const bcrypt = require('bcrypt');
 const jwToken = require('jsonwebtoken');
 const connection = require('../config/config');
@@ -38,7 +37,7 @@ exports.login = (req, res, next ) => {
                         res.status(200).json({
                             userId: results[0].userId,
                             token: jwToken.sign(
-                                { userId: results.userId },
+                                { userId: results[0].userId },
                                 privateKey,
                                 { expiresIn: '1h'  }
                             ),
