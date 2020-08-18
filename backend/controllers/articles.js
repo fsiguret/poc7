@@ -131,43 +131,43 @@ exports.changeArticle = (req, res, next) => {
 };
 
 exports.deleteOneArticle = (req, res, next) => {
-  let sql = `DELETE FROM Articles WHERE id = ?`;
-  let value = [req.params.id];
+  let sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
+  let sqlSelect = `SELECT imageUrl FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+  let value = [req.params.id, req.body.userId];
 
-  connection.query(sql, value, (error, results, fields) => {
-    if(error) {
+  //QUERY SELECT
+  connection.query(sqlSelect, (errorSelect, resultsSelect, fields) => {
+    if (errorSelect) {
       res.status(500).send("l'article n'a pas pu être supprimé.");
     } else {
-      res.status(200).send("L'article a bien été supprimé.");
+
+      //QUERY DELETE
+      connection.query(sqlDelete, value, (error, results, fields) => {
+        if(error) {
+          res.status(500).send("l'article n'a pas pu être supprimé.");
+        } else {
+          if(resultsSelect[0].imageUrl !== null) {
+            const filename = resultsSelect[0].imageUrl.split('/images/')[1];
+            fs.unlink(`images/${filename}`, () => {});
+          }
+          res.status(200).send("L'article a bien été supprimé.");
+        }
+      });
     }
   });
 };
 
 exports.likeOrDislike = (req, res, next) => {
-  let articleId = req.params.id;
-  let userId = req.body.userId;
-  let like = parseInt(req.body.like, 10);
+  let sqlSelect = ` SELECT id, articleId, usersLike, usersDislike, likes, dislikes 
+                    FROM Articles
+                    INNER JOIN UserLikes ON Articles.id = UserLikes.articleId`;
 
-  let sql = `SELECT * FROM UserLikes
-                WHERE articleId = ?`;
-
-  let value = [articleId];
-
-  connection.query(sql,value,(error, userLikes, fields) => {
-    if(error) {
+  connection.query(sqlSelect, (error, results, fields) => {
+    if (error) {
       res.status(500).send("Une erreur est survenue : " + error);
     } else {
 
-      if(like > 0) {
-        let sql = `INSERT INTO Articles
-              SET likes = likes + ?`;
-        console.log(userLikes)
-
-      } else if (like < 0) {
-
-      }
     }
   });
-
 
 };
