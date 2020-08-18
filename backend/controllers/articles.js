@@ -21,12 +21,15 @@ exports.getAllArticles = (req, res, next) => {
 exports.addArticle = (req, res, next) => {
   const isFile = (!(req.file === null || req.file === undefined));
 
-    if (!isFile) { //if not file
-      let sqlNotFile = `INSERT INTO Articles (userId, text, date)
+  //request SQL
+  let sqlNotFile = `INSERT INTO Articles (userId, text, date)
                 VALUES (?,?, NOW())`;
 
-      let valuesNotFile = [req.body.userId, req.body.text];
+  let sqlFile = `INSERT INTO Articles (userId, text, date, imageUrl)
+                VALUES (?, ?, NOW(), ?)`;
 
+    if (!isFile) { //if not file
+      let valuesNotFile = [req.body.userId, req.body.text];
       //QUERY INSERT
       connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
         if(error) {
@@ -36,8 +39,6 @@ exports.addArticle = (req, res, next) => {
         }
       });
     } else if(isFile)  { // if file
-      let sqlFile = `INSERT INTO Articles (userId, text, date, imageUrl)
-                VALUES (?, ?, NOW(), ?)`;
 
       const bodyArticle = JSON.parse(req.body.article);
       let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
@@ -56,6 +57,7 @@ exports.addArticle = (req, res, next) => {
 };
 
 exports.getOneArticle = (req, res, next) => {
+  //request SQL
   let sql = `SELECT * FROM Articles WHERE id = ` + mysql.escape(req.params.id);
 
   //QUERY SELECT
@@ -72,11 +74,13 @@ exports.getOneArticle = (req, res, next) => {
 
 exports.changeArticle = (req, res, next) => {
   let isFile = ((!(req.file === null || req.file === undefined)));
+  //request SQL
+  let sqlNotFile = `UPDATE Articles
+                    SET text = ?, date = NOW() WHERE userId = ? AND id = ?` ;
+  let sqlFile = `UPDATE Articles SET text = ?, imageUrl = ?, date = NOW() WHERE userId = ? AND id = ?`;
+  let sqlSelect = `SELECT imageUrl, userId FROM Articles WHERE id =`+ mysql.escape(req.params.id);
 
   if(!isFile){
-    let sqlNotFile = `UPDATE Articles
-                SET text = ?, date = NOW() WHERE userId = ? AND id = ?` ;
-
     let valuesNotFile = [req.body.text, req.body.userId, req.params.id];
 
     //QUERY UPDATE
@@ -89,10 +93,6 @@ exports.changeArticle = (req, res, next) => {
     });
 
   } else if(isFile) {
-
-    let sqlFile = `UPDATE Articles SET text = ?, imageUrl = ?, date = NOW() WHERE userId = ? AND id = ?`;
-    let sqlSelect = `SELECT imageUrl, userId FROM Articles WHERE id =`+ mysql.escape(req.params.id);
-
     const objectArticle = JSON.parse(req.body.article);
 
     let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
@@ -131,8 +131,10 @@ exports.changeArticle = (req, res, next) => {
 };
 
 exports.deleteOneArticle = (req, res, next) => {
+  //request SQL
   let sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
   let sqlSelect = `SELECT imageUrl FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+
   let value = [req.params.id, req.body.userId];
 
   //QUERY SELECT
@@ -158,15 +160,63 @@ exports.deleteOneArticle = (req, res, next) => {
 };
 
 exports.likeOrDislike = (req, res, next) => {
+  const isLike = parseInt(req.body.like, 10);
+
+
+  //request sql
   let sqlSelect = ` SELECT id, articleId, usersLike, usersDislike, likes, dislikes 
                     FROM Articles
-                    INNER JOIN UserLikes ON Articles.id = UserLikes.articleId`;
+                    INNER JOIN UserLikes ON Articles.id = UserLikes.articleId
+                    WHERE articleId = ?`;
 
-  connection.query(sqlSelect, (error, results, fields) => {
-    if (error) {
-      res.status(500).send("Une erreur est survenue : " + error);
+  let sqlInsertLike = ` INSERT INTO UserLikes (articleId, usersLike)
+                        VALUES (?, ?)`;
+
+  let sqlInsertDislike = `INSERT INTO UserLikes (articleId, usersDislike)
+                          VALUES (?, ?)`;
+
+  let sqlUpdateLike = `UPDATE Articles
+                        SET likes = likes + ?`;
+
+  let sqlUpdateDislike = `UPDATE Articles
+                        SET dislikes = dislikes + ?`;
+
+  //values request
+  const valueSelect = [req.params.id];
+
+  ///QUERY SELECT
+  connection.query(sqlSelect, valueSelect,(errorSelect, resultsSelect, fields) => {
+    if (errorSelect) {
+      res.status(500).send("Une erreur est survenue lors de la selection des tables Articles et UserLikes : " + errorSelect);
     } else {
 
+      const isFirst = ((!(resultsSelect[0] === null || resultsSelect[0] === undefined)));// if first user in table UserLikes
+
+      if(isLike > 0 && !isFirst || resultsSelect[0].usersLike !== req.body.userId && resultsSelect[0].usersDislike !== req.body.userId) {
+        //values request
+        let valueInsertLike = [req.params.id, req.body.userId];
+
+        //QUERY INSERT
+        connection.query(sqlInsertLike, valueInsertLike, (errorInsertLike, resultsLike, fields) => {
+          if (errorInsertLike) {
+            res.status(500).send("L'insertion n'a pas pu être effectuée sur la table UserLikes : " + errorInsertLike);
+          } else {
+            let valueUpdateLike = [];
+            //QUERRY UPDATE
+            connection.query(sqlUpdateLike, valueUpdateLike, (errorUpdateLike) => {
+              if (errorUpdateLike) {
+                res.status(500).send("La table Article n'as pas pu être mise à jour. " + errorUpdateLike);
+              } else {
+
+              }
+            });
+          }
+        });
+      } else if(isLike < 0) {
+
+      } else {
+        res.status(400).send("Vous avez déjà un avis sur cet article.");
+      }
     }
   });
 
