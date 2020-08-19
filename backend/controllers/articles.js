@@ -22,38 +22,34 @@ exports.addArticle = (req, res, next) => {
   const isFile = (!(req.file === null || req.file === undefined));
 
   //request SQL
-  let sqlNotFile = `INSERT INTO Articles (userId, text, date)
-                VALUES (?,?, NOW())`;
+  let sqlNotFile = `INSERT INTO Articles (userId, text, date) VALUES (?,?, NOW())`;
 
-  let sqlFile = `INSERT INTO Articles (userId, text, date, imageUrl)
-                VALUES (?, ?, NOW(), ?)`;
+  let sqlFile = `INSERT INTO Articles (userId, text, date, imageUrl) VALUES (?, ?, NOW(), ?)`;
 
-    if (!isFile) { //if not file
-      let valuesNotFile = [req.body.userId, req.body.text];
-      //QUERY INSERT
-      connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
-        if(error) {
-          res.status(500).send("L'article n'a pas pu être enregistré. " + error);
-        } else {
-          res.status(201).json({ message: "L'article a bien été enregistré sans fichier." });
-        }
-      });
-    } else if(isFile)  { // if file
-
-      const bodyArticle = JSON.parse(req.body.article);
-      let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-      let valuesFile = [bodyArticle.userId, bodyArticle.text, fileUrl];
-
-      //QUERY INSERT
-      connection.query(sqlFile, valuesFile, (error, results, fields) => {
-        if (error) {
-          fs.unlink(`images/${req.file.filename}`, () => {});
-          res.status(500).send("L'article n'a pas pu être enregistré." + error);
-        } else {
-          res.status(201).json({ message: "L'article a bien été enregistré avec fichier." });
-        }
-      });
-    }
+  if (!isFile) { //if not file
+    let valuesNotFile = [req.body.userId, req.body.text];
+    //QUERY INSERT
+    connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
+      if(error) {
+        res.status(500).send("L'article n'a pas pu être enregistré. " + error);
+      } else {
+        res.status(201).json({ message: "L'article a bien été enregistré sans fichier." });
+      }
+    });
+  } else if(isFile)  { // if file
+    const bodyArticle = JSON.parse(req.body.article);
+    let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+    let valuesFile = [bodyArticle.userId, bodyArticle.text, fileUrl];
+    //QUERY INSERT
+    connection.query(sqlFile, valuesFile, (error, results, fields) => {
+      if (error) {
+        fs.unlink(`images/${req.file.filename}`, () => {});
+        res.status(500).send("L'article n'a pas pu être enregistré." + error);
+      } else {
+        res.status(201).json({ message: "L'article a bien été enregistré avec fichier." });
+      }
+    });
+  }
 };
 
 exports.getOneArticle = (req, res, next) => {
@@ -160,5 +156,84 @@ exports.deleteOneArticle = (req, res, next) => {
 };
 
 exports.likeOrDislike = (req, res, next) => {
+  const idArticle = req.params.id;
+  const idUser = req.body.userId;
 
+  let isLike = parseInt(req.body.like, 10);
+  let messageIsLike = " ";
+
+  //request sql
+  let sqlInsertLike = ` INSERT INTO UserLikes(articleId, userId, isLike) VALUES (?,?,?)`;
+  let sqlUpdateLike = ` UPDATE UserLikes SET isLike = ? WHERE userId = ? AND articleId = ?`;
+  let sqlSelectIfLiked = `SELECT isLike FROM Userlikes WHERE userId = ? AND articleId = ?`;
+  let sqlUpdateLikeArticle = ``;
+  let valuesUpdateLikeArticle = [idArticle, idUser];
+
+
+  console.log(isLike)
+  if (req.body.userId && req.body.like) {
+
+    if (isLike < 1 && isLike > -1) {
+      isLike = 0;
+      messageIsLike = "Vous n'avez pas d'avis pour cet article."
+
+    }else if (isLike <= -1) {
+      isLike = -1;
+      messageIsLike = "Vous n'aimez pas cet article.";
+      sqlUpdateLikeArticle = `UPDATE Articles SET dislikes = dislikes + 1, likes = likes + -1 WHERE id = ? AND userId = ?`;
+
+
+    }else if (isLike => 1) {
+      isLike = 1;
+      messageIsLike = "Vous avez aimé cet article.";
+      sqlUpdateLikeArticle = `UPDATE Articles SET likes = likes + 1, dislikes = dislikes + -1 WHERE id = ? AND userId = ?`;
+    }
+
+    let valuesIfLiked = [idUser, idArticle];
+
+    //SELECT
+    connection.query(sqlSelectIfLiked, valuesIfLiked, (errorIfLiked, resultsIfLiked, fields) => {
+      if (errorIfLiked) {
+        res.status(500).send("Une erreur est survenue lors de la sélection ifLiked. " + errorIfLiked);
+
+      } else if (resultsIfLiked[0] === undefined){
+        if(isLike === 0) {
+          res.status(400).send("Vous n'avez déjà pas d'avis.");
+        } else {
+          //INSERT FIRST
+          let valuesInsertLike = [idArticle, idUser, isLike];
+
+          connection.query(sqlInsertLike, valuesInsertLike, (errorInsertLike, resultsInsertLike, fields) => {
+            if (errorInsertLike) {
+              res.status(500).send("Une erreur est survenue lors de l'enregistrement de l'avis : " + errorInsertLike);
+            } else {
+              //UPDATE Articles
+
+              connection.query(sqlUpdateLikeArticle, valuesUpdateLikeArticle, (errorUpdateLikeArticle, resultsUpdateLikeArticle, fields) => {
+                if (errorUpdateLikeArticle) {
+                  res.status(500).send("Une erreur est survenue lors du changement de like ou dislike dans la table Articles. " + errorUpdateLikeArticle);
+                } else {
+                  res.status(200).send(messageIsLike);
+                }
+              });
+            }
+          });
+        }
+      } else {
+        //UPDATE
+        let valuesUpdateLike = [isLike, idUser, idArticle];
+
+        connection.query(sqlUpdateLike, valuesUpdateLike, (errorUpdateLike, resultsUpdateLike, fields) => {
+          if (errorUpdateLike) {
+            res.status(500).send("Une erreur est survenue lors de l'enregistrement de l'avis : " + errorUpdateLike);
+          } else {
+            res.status(200).send(messageIsLike);
+          }
+        });
+      }
+    });
+
+  } else {
+    res.status(500).send("la requête doit être au format JSON et contenir les clés 'userId' et 'like'");
+  }
 };
