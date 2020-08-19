@@ -29,27 +29,31 @@ exports.login = (req, res, next ) => {
 
     connection.query(sql, value,(error, results, fields) => {
         if(error) {
-            res.status(404).send("L'utilisateur n'éxiste pas." + error);
+            res.status(500).send("Une erreur est survenue lors de l'accès à la base de donnée" + error);
         } else  {
-            bcrypt.compare(req.body.password, results[0].password)
-                .then(valid => {
-                    if(valid) {
-                        res.status(200).json({
-                            userId: results[0].userId,
-                            token: jwToken.sign(
-                                { userId: results[0].userId },
-                                privateKey,
-                                { expiresIn: '1h'  }
-                            ),
-                            message: "Connection réussie !"
-                        });
-                    }else {
-                        res.status(400).send("mot de passe érroné.");
-                    }
-                })
-                .catch(() => {
-                    res.status(400).send("Une erreur c'est produite lors de la comparaison des mots de passe.")
-                });
+            if(results[0] !== undefined) {
+                bcrypt.compare(req.body.password, results[0].password)
+                    .then(valid => {
+                        if(valid) {
+                            res.status(200).json({
+                                userId: results[0].userId,
+                                token: jwToken.sign(
+                                    { userId: results[0].userId },
+                                    privateKey,
+                                    { expiresIn: '1h'  }
+                                ),
+                                message: "Connection réussie !"
+                            });
+                        }else {
+                            res.status(400).send("mot de passe érroné.");
+                        }
+                    })
+                    .catch(() => {
+                        res.status(400).send("Une erreur c'est produite lors de la comparaison des mots de passe.")
+                    });
+            } else {
+                res.status(400).send("L'utilisateur n'existe pas");
+            }
         }
     });
 };
