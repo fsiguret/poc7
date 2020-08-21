@@ -156,84 +156,101 @@ exports.deleteOneArticle = (req, res, next) => {
 };
 
 exports.likeOrDislike = (req, res, next) => {
-  const idArticle = req.params.id;
-  const idUser = req.body.userId;
+  const articleId = req.params.id;
+  const userId = req.body.userId;
 
-  let isLike = parseInt(req.body.like, 10);
-  let messageIsLike = " ";
+  let likedOrNot = parseInt(req.body.like,10);
+  let message = "";
 
-  //request sql
-  let sqlInsertLike = ` INSERT INTO UserLikes(articleId, userId, isLike) VALUES (?,?,?)`;
-  let sqlUpdateLike = ` UPDATE UserLikes SET isLike = ? WHERE userId = ? AND articleId = ?`;
-  let sqlSelectIfLiked = `SELECT isLike FROM Userlikes WHERE userId = ? AND articleId = ?`;
-  let sqlUpdateLikeArticle = ``;
-  let valuesUpdateLikeArticle = [idArticle, idUser];
+  let sqlSelectArticlesAndUserLikes = `SELECT * FROM Articles INNER JOIN UserLikes ON Articles.id = UserLikes.articleId WHERE Articles.id = ? AND Userlikes.userId = ?`;
+  let sqlInsert = ``;
+  let sqlUpdate = ``;
+  let sqlUpdateUserLikes = `UPDATE UserLikes SET isLike = ?, articleId = ?, userId = ?`;
 
+  if (likedOrNot > -1 && likedOrNot < 1) {
+    likedOrNot = 0;
+    message = "Vous n'avez plus d'avis pour cet article.";
+  } else if(likedOrNot >= 1) {
+    likedOrNot = 1;
+    message = "Vous avez aimé l'article.";
+  } else if (likedOrNot <= -1) {
+    likedOrNot = -1;
+    message = "Vous n'aimez pas l'article.";
+  }
 
-  console.log(isLike)
-  if (req.body.userId && req.body.like) {
+  let valuesSelectArticlesAndUserLikes = [articleId, userId];
 
-    if (isLike < 1 && isLike > -1) {
-      isLike = 0;
-      messageIsLike = "Vous n'avez pas d'avis pour cet article."
+  connection.query(sqlSelectArticlesAndUserLikes, valuesSelectArticlesAndUserLikes, (errorSelectArticle, resultsSelectArticle, fields) => {
+    if (errorSelectArticle) {
+      res.status(500).send("Une erreur est survenue lors de la jointure entre les tables Articles et UserLikes. " + errorSelectArticle);
+    } else if (resultsSelectArticle[0] === undefined) {
 
-    }else if (isLike <= -1) {
-      isLike = -1;
-      messageIsLike = "Vous n'aimez pas cet article.";
-      sqlUpdateLikeArticle = `UPDATE Articles SET dislikes = dislikes + 1, likes = likes + -1 WHERE id = ? AND userId = ?`;
+      if (likedOrNot === 1) {
+        sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
+        sqlUpdate = `UPDATE Articles SET likes = likes + 1`;
+      } else if (likedOrNot === -1) {
+        sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
+        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1`;
+      } else if (likedOrNot === 0) {
+        res.status(500).send("Vous n'avez pas d'avis.");
+        return;
+      }
 
-
-    }else if (isLike => 1) {
-      isLike = 1;
-      messageIsLike = "Vous avez aimé cet article.";
-      sqlUpdateLikeArticle = `UPDATE Articles SET likes = likes + 1, dislikes = dislikes + -1 WHERE id = ? AND userId = ?`;
-    }
-
-    let valuesIfLiked = [idUser, idArticle];
-
-    //SELECT
-    connection.query(sqlSelectIfLiked, valuesIfLiked, (errorIfLiked, resultsIfLiked, fields) => {
-      if (errorIfLiked) {
-        res.status(500).send("Une erreur est survenue lors de la sélection ifLiked. " + errorIfLiked);
-
-      } else if (resultsIfLiked[0] === undefined){
-        if(isLike === 0) {
-          res.status(400).send("Vous n'avez déjà pas d'avis.");
+      //FIRST INSERT
+      let valueInsert = [userId, articleId, likedOrNot];
+      connection.query(sqlInsert, valueInsert, (errorInsert, resultsInsert, fields) => {
+        if (errorInsert) {
+          res.status(500).send("Une erreur est survenue lors de l'insertion dans la table UserLikes. " + errorInsert);
         } else {
-          //INSERT FIRST
-          let valuesInsertLike = [idArticle, idUser, isLike];
-
-          connection.query(sqlInsertLike, valuesInsertLike, (errorInsertLike, resultsInsertLike, fields) => {
-            if (errorInsertLike) {
-              res.status(500).send("Une erreur est survenue lors de l'enregistrement de l'avis : " + errorInsertLike);
+          //FIRST UPDATE
+          connection.query(sqlUpdate,(errorUpdate, resultsUpdate, fields) => {
+            if (errorUpdate) {
+              res.status(500).send("Une erreur est survenue lors de la mise à jour de la table Articles. " + errorUpdate);
             } else {
-              //UPDATE Articles
-
-              connection.query(sqlUpdateLikeArticle, valuesUpdateLikeArticle, (errorUpdateLikeArticle, resultsUpdateLikeArticle, fields) => {
-                if (errorUpdateLikeArticle) {
-                  res.status(500).send("Une erreur est survenue lors du changement de like ou dislike dans la table Articles. " + errorUpdateLikeArticle);
-                } else {
-                  res.status(200).send(messageIsLike);
-                }
-              });
+              res.status(200).send(message);
             }
           });
         }
+      });
+    } else {
+      //UPDATE
+
+      let isLike = resultsSelectArticle[0].isLike;
+
+      if (likedOrNot === 1 && isLike === 0) {
+        sqlUpdate = `UPDATE Articles SET likes = likes + 1`;
+      } else if (likedOrNot === -1 && isLike === 0) {
+        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1`;
+      } else if (likedOrNot === 0) {
+
+        if(isLike === 1) {
+          sqlUpdate = `UPDATE Articles SET likes = likes - 1`;
+        }else if(isLike === -1) {
+          sqlUpdate = `UPDATE Articles SET dislikes = dislikes - 1`;
+        } else {
+          res.status(500).send("Vous n'avez pas d'avis.");
+          return;
+        }
       } else {
-        //UPDATE
-        let valuesUpdateLike = [isLike, idUser, idArticle];
-
-        connection.query(sqlUpdateLike, valuesUpdateLike, (errorUpdateLike, resultsUpdateLike, fields) => {
-          if (errorUpdateLike) {
-            res.status(500).send("Une erreur est survenue lors de l'enregistrement de l'avis : " + errorUpdateLike);
-          } else {
-            res.status(200).send(messageIsLike);
-          }
-        });
+        res.status(500).send("Vous ne pouvez avoir plus d'un avis par article.");
+        return;
       }
-    });
 
-  } else {
-    res.status(500).send("la requête doit être au format JSON et contenir les clés 'userId' et 'like'");
-  }
+      connection.query(sqlUpdate,(errorUpdate, resultsUpdate, fields) => {
+        if (errorUpdate) {
+          res.status(500).send("Une erreur est survenue lors de la mise à jour de la table Articles. " + errorUpdate);
+        } else {
+
+          let valuesUpdateUserLikes = [likedOrNot, articleId, userId];
+          connection.query(sqlUpdateUserLikes, valuesUpdateUserLikes, (errorUpdateUserLikes, resultsUpdateUserLikes, fields) => {
+            if (errorUpdateUserLikes) {
+              res.status(500).send("Une erreur est survenue lors de la mise à jour de la table UserLikes. " + errorUpdateUserLikes);
+            } else {
+              res.status(200).send(message);
+            }
+          });
+        }
+      });
+    }
+  });
 };
