@@ -254,3 +254,32 @@ exports.likeOrDislike = (req, res, next) => {
     }
   });
 };
+
+exports.commentArticle = (req, res, next) => {
+
+  let sqlInsert = `INSERT INTO Commentary (userId, articleId, com) VALUES (?,?,?)`;
+
+  let valuesInsert = [req.body.userId, req.params.id, req.body.text];
+  connection.query(sqlInsert, valuesInsert, (errorInsert, resultsFirstInsert, fields) => {
+    if (errorInsert) {
+      res.status(500).send("Une erreur est survenue lors de 'insertion dans la table Commentary. " + errorInsert);
+    } else {
+      res.status(201).send("Votre commentaire a bien été ajouté.");
+    }
+  });
+};
+
+exports.getCommentByArticle = (req, res, next) => {
+  let sqlSelect = `SELECT com FROM Commentary WHERE articleId = ?`;
+
+  let valuesSelect = [req.params.id];
+  connection.query(sqlSelect, valuesSelect, (errorSelect, resultsSelect, fields) => {
+    if (errorSelect) {
+      res.status(500).send("Une erreur est survenue lors de la jointure entre les tables Articles et Commentary. " + errorSelect);
+    } else if (resultsSelect[0] === undefined) {
+      res.status(500).send("La table Commentary est vide.");
+    }else {
+      res.status(200).json({ resultsSelect });
+    }
+  });
+};
