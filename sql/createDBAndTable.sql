@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS `Users` (
 	`rank` TINYINT DEFAULT 0,
 	PRIMARY KEY (userId),
 	UNIQUE (email)
-);
+)
+ENGINE = INNODB;
 
 CREATE TABLE IF NOT EXISTS `UserLikes` (
     `id` INT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
@@ -46,19 +47,29 @@ ENGINE = INNODB;
 ALTER TABLE Articles
 ADD CONSTRAINT fk_user_id
 	    FOREIGN KEY (userId)
-	    REFERENCES Users(userId);
+	    REFERENCES Users(userId)
+	    ON DELETE CASCADE ;
 
 ALTER TABLE UserLikes
 ADD CONSTRAINT fk_article_id
 	    FOREIGN KEY (articleId)
-	    REFERENCES Articles(id);
+	    REFERENCES Articles(id)
+	    ON DELETE CASCADE;
 
 ALTER TABLE UserLikes
 ADD CONSTRAINT fk_user_like_id
 	    FOREIGN KEY (userId)
-	    REFERENCES Users(userId);
+	    REFERENCES Users(userId)
+	    ON DELETE CASCADE;
 
 ALTER TABLE Commentary
 ADD CONSTRAINT fk_article_com_id
-	    FOREIGN KEY (articleId)
-	    REFERENCES Articles(id);
+        FOREIGN KEY (articleId)
+        REFERENCES Articles(id)
+        ON DELETE CASCADE;
+
+ALTER TABLE Commentary
+ADD CONSTRAINT fk_user_com_id
+        FOREIGN KEY (userId)
+        REFERENCES Articles(userId)
+        ON DELETE CASCADE;

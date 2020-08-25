@@ -12,5 +12,6 @@ router.post('/:id/comment',auth, articlesCtrl.commentArticle);
 router.put('/:id/like', auth, articlesCtrl.likeOrDislike);
 router.put('/:id', auth, multer, articlesCtrl.changeArticle);
 router.delete('/:id', auth, articlesCtrl.deleteOneArticle);
+router.delete('/:id/delcom', auth, articlesCtrl.deleteComment);
 
 module.exports = router;

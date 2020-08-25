@@ -60,8 +60,8 @@ exports.login = (req, res, next ) => {
 
 exports.deleteUser = (req, res, next ) => {
 
-    let sql = `DELETE FROM Users WHERE email = ?`;
-    let value = [req.body.email];
+    let sql = `DELETE FROM Users WHERE email = ? AND userId = ?`;
+    let value = [req.body.email, req.body.userId];
 
     connection.query(sql, value, (error, results, fields) => {
         if(error) {

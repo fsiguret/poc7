@@ -129,7 +129,7 @@ exports.changeArticle = (req, res, next) => {
 exports.deleteOneArticle = (req, res, next) => {
   //request SQL
   let sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
-  let sqlSelect = `SELECT imageUrl FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+  let sqlSelect = `SELECT * FROM Articles WHERE id =`+ mysql.escape(req.params.id);
 
   let value = [req.params.id, req.body.userId];
 
@@ -144,12 +144,16 @@ exports.deleteOneArticle = (req, res, next) => {
         if(error) {
           res.status(500).send("l'article n'a pas pu être supprimé.");
         } else {
-          if(resultsSelect[0].imageUrl !== null) {
-            const filename = resultsSelect[0].imageUrl.split('/images/')[1];
-            fs.unlink(`images/${filename}`, () => {});
+            if(resultsSelect[0].userId === req.body.userId) {
+              if(resultsSelect[0].imageUrl !== null) {
+                const filename = resultsSelect[0].imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {});
+              }
+              res.status(200).send("L'article a bien été supprimé.");
+            } else {
+              res.status(400).send("Vous devez vous connecter sur le bon compte pour supprimer cet article.");
+            }
           }
-          res.status(200).send("L'article a bien été supprimé.");
-        }
       });
     }
   });
@@ -280,6 +284,32 @@ exports.getCommentByArticle = (req, res, next) => {
       res.status(500).send("La table Commentary est vide.");
     }else {
       res.status(200).json({ resultsSelect });
+    }
+  });
+};
+
+exports.deleteComment = (req, res, next) => {
+  let sqlIfExists = `SELECT EXISTS (SELECT id FROM Commentary WHERE id = ?) AS isTrue`;
+  let sqlDelete = `DELETE FROM Commentary WHERE userId = ? AND id = ?`;
+
+  let valuesIfExists = [req.params.id];
+  connection.query(sqlIfExists, valuesIfExists, (errorIfExists, resultsIfExist, fields) => {
+    if (errorIfExists) {
+      res.status(500).send(errorIfExists);
+    } else {
+      if(resultsIfExist[0].isTrue === 1) {
+
+        let valuesDelete = [req.body.userId, req.params.id];
+        connection.query(sqlDelete, valuesDelete, (errorDelete, resultsDelete, fields) => {
+          if (errorDelete) {
+            res.status(500).send("Une erreur est survenue lors de la suppression du commentaire. " + errorDelete);
+          } else {
+            res.status(200).send("Le commentaire a bien été supprimé.");
+          }
+        });
+      } else {
+        res.status(500).send("Ce commentaire n'éxiste pas.");
+      }
     }
   });
 };
