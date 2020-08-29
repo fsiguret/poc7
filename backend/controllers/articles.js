@@ -22,12 +22,12 @@ exports.addArticle = (req, res, next) => {
   const isFile = (!(req.file === null || req.file === undefined));
 
   //request SQL
-  let sqlNotFile = `INSERT INTO Articles (userId, text, date) VALUES (?,?, NOW())`;
+  let sqlNotFile = `INSERT INTO Articles (userId, content, createAt) VALUES (?,?, NOW())`;
 
-  let sqlFile = `INSERT INTO Articles (userId, text, date, imageUrl) VALUES (?, ?, NOW(), ?)`;
+  let sqlFile = `INSERT INTO Articles (userId, content, createAt, imageUrl) VALUES (?, ?, NOW(), ?)`;
 
   if (!isFile) { //if not file
-    let valuesNotFile = [req.body.userId, req.body.text];
+    let valuesNotFile = [req.body.userId, req.body.content];
     //QUERY INSERT
     connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
       if(error) {
@@ -39,7 +39,7 @@ exports.addArticle = (req, res, next) => {
   } else if(isFile)  { // if file
     const bodyArticle = JSON.parse(req.body.article);
     let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-    let valuesFile = [bodyArticle.userId, bodyArticle.text, fileUrl];
+    let valuesFile = [bodyArticle.userId, bodyArticle.content, fileUrl];
     //QUERY INSERT
     connection.query(sqlFile, valuesFile, (error, results, fields) => {
       if (error) {
@@ -70,91 +70,159 @@ exports.getOneArticle = (req, res, next) => {
 
 exports.changeArticle = (req, res, next) => {
   let isFile = ((!(req.file === null || req.file === undefined)));
+  let objectArticle = "";
+
   //request SQL
-  let sqlNotFile = `UPDATE Articles
-                    SET text = ?, date = NOW() WHERE userId = ? AND id = ?` ;
-  let sqlFile = `UPDATE Articles SET text = ?, imageUrl = ?, date = NOW() WHERE userId = ? AND id = ?`;
+  let sqlIfExist = `SELECT EXISTS (SELECT id FROM Articles WHERE id = ?) AS isTrue`;
+  let sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE userId = ? AND id = ?` ;
+  let sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
   let sqlSelect = `SELECT imageUrl, userId FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+  let sqlSelectRank = ``;
 
-  if(!isFile){
-    let valuesNotFile = [req.body.text, req.body.userId, req.params.id];
 
-    //QUERY UPDATE
-    connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
-      if(error) {
-        res.status(500).send("L'article n'a pas pu être modifié.");
-      } else {
-        res.status(201).json({ message: "L'article a bien été modifié." });
+  let valuesNotFile = [];
+
+  let valuesFile = [];
+
+  if(isFile){
+    objectArticle = JSON.parse(req.body.article);
+    sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(objectArticle.userId);
+  } else {
+    sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
+  }
+
+
+  //QUERY SELECT RANK
+  connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
+    if (errorSelectRank) {
+      res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. " + errorSelectRank);
+    } else {
+      if (resultsSelectRank[0].rank === 4) {
+        if (!isFile) {
+          sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE id = ?`;
+          valuesNotFile = [req.body.content, req.params.id];
+        } else {
+
+          let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+
+          sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE id = ?`;
+          valuesFile = [objectArticle.content, fileUrl, req.params.id];
+        }
+      } else if (resultsSelectRank[0] !== 4) {
+        if (!isFile) {
+          sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
+          valuesNotFile = [req.body.content, req.body.userId, req.params.id];
+        } else {
+
+          let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
+
+          sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
+          valuesFile = [objectArticle.content, fileUrl, objectArticle.userId, req.params.id];
+        }
       }
-    });
+    }
 
-  } else if(isFile) {
-    const objectArticle = JSON.parse(req.body.article);
-
-    let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-    let valuesFile = [objectArticle.text, fileUrl, objectArticle.userId, req.params.id];
-
-    //QUERY SELECT
-    connection.query(sqlSelect, (error, resultsSelect, fields) => {
-      if (error) {
-        res.status(500).send("Une erreur est survenue : " + error);
-
-      } else {
-
-        const filename = resultsSelect[0].imageUrl.split('/images/')[1];
-
-        fs.unlink(`images/${filename}`, () => {
-
+    //QUERY SELECT IF EXISTS
+    let valueIfExist = [req.params.id];
+    connection.query(sqlIfExist, valueIfExist, (errorSelect, resultsSelect, fields) => {
+      if (errorSelect) {
+        res.status(500).send("Une erreur est survenue lors de la sélection de l'article." + errorSelect);
+      } else if (resultsSelect[0].isTrue === 1) {
+        if (!isFile) {
           //QUERY UPDATE
-            connection.query(sqlFile, valuesFile, (error, results, fields) => {
-
-            if(error || resultsSelect[0].userId !== req.body.userId) {
-
-                fs.unlink(`images/${req.file.filename}`, () => {});
-                res.status(500).send("L'article n'a pas pu être modifié car vous n'avez peut-être pas le bon userID.");
-
+          connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
+            if (error || results.affectedRows === 0) {
+              res.status(500).send("L'article n'a pas pu être modifié car vous essayez de modifier un Article ne vous appartenant pas, ou êtes connecté sur le mauvais compte.");
             } else {
-
-                fs.unlink(`images/${req.file.filename}`, () => {});
-                res.status(500).send("L'article n'a pas pu être modifié.");
-
+              res.status(201).send("L'article a bien été modifié.");
             }
           });
-        });
+
+        } else if (isFile) {
+          //QUERY SELECT
+          connection.query(sqlSelect, (error, resultsSelect, fields) => {
+            if (error) {
+              res.status(500).send("Une erreur est survenue : " + error);
+            } else {
+              const filename = resultsSelect[0].imageUrl.split('/images/')[1];
+              fs.unlink(`images/${filename}`, () => {
+
+                //QUERY UPDATE
+                connection.query(sqlFile, valuesFile, (error, results, fields) => {
+                  if (error) {
+                    fs.unlink(`images/${req.file.filename}`, () => {
+                    });
+                    res.status(500).send("Une erreur est survenue lors de la mise à jour de l'article." + error);
+                  } else {
+                    res.status(200).send("L'article à été modifié.");
+                  }
+                });
+              });
+            }
+          });
+        }
+      } else {
+        res.status(400).send("L'article n'existe pas.");
       }
     });
-  }
+  });
 };
 
 exports.deleteOneArticle = (req, res, next) => {
   //request SQL
-  let sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
+  let sqlIfExist = `SELECT EXISTS (SELECT id FROM Articles WHERE id = ?) AS isTrue`;
+  let sqlDelete = ``;
   let sqlSelect = `SELECT * FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+  let sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
 
-  let value = [req.params.id, req.body.userId];
 
-  //QUERY SELECT
-  connection.query(sqlSelect, (errorSelect, resultsSelect, fields) => {
-    if (errorSelect) {
-      res.status(500).send("l'article n'a pas pu être supprimé.");
-    } else {
+  let value = [];
+  let valueIfExist = [req.params.id];
 
-      //QUERY DELETE
-      connection.query(sqlDelete, value, (error, results, fields) => {
-        if(error) {
+  connection.query(sqlIfExist,valueIfExist, (errorSelectIfExist, resultsSelectIfExist, fields) => {
+    if (errorSelectIfExist) {
+      res.status(500).send("Une erreur est survenue lors de la sélection de l'article." + errorSelect);
+    } else if(resultsSelectIfExist[0].isTrue === 1) {
+
+      //QUERY SELECT
+      connection.query(sqlSelect, (errorSelect, resultsSelect, fields) => {
+        if (errorSelect) {
           res.status(500).send("l'article n'a pas pu être supprimé.");
         } else {
-            if(resultsSelect[0].userId === req.body.userId) {
-              if(resultsSelect[0].imageUrl !== null) {
-                const filename = resultsSelect[0].imageUrl.split('/images/')[1];
-                fs.unlink(`images/${filename}`, () => {});
-              }
-              res.status(200).send("L'article a bien été supprimé.");
+
+          connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
+            if (errorSelectRank) {
+              res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. " + errorSelectRank);
             } else {
-              res.status(400).send("Vous devez vous connecter sur le bon compte pour supprimer cet article.");
+              if (resultsSelectRank[0].rank === 4) {
+                sqlDelete = `DELETE FROM Articles WHERE id = ?`;
+                value = [req.params.id];
+
+              } else if (resultsSelectRank[0] !== 4) {
+                sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
+                value = [req.params.id, req.body.userId];
+              }
             }
-          }
+            //QUERY DELETE
+            connection.query(sqlDelete, value, (error, results, fields) => {
+              if (error) {
+                res.status(500).send("l'article n'a pas pu être supprimé.");
+              } else {
+                let isArticle = ((!(resultsSelect[0] === null || resultsSelect[0] === undefined)));
+
+                if (isArticle) {
+                  const filename = resultsSelect[0].imageUrl.split('/images/')[1];
+                  fs.unlink(`images/${filename}`, () => {
+                  });
+                }
+                res.status(200).send("L'article a bien été supprimé.");
+              }
+            });
+          });
+        }
       });
+    } else {
+      res.status(400).send("L'article n'existe pas.");
     }
   });
 };
@@ -169,7 +237,9 @@ exports.likeOrDislike = (req, res, next) => {
   let sqlSelectArticlesAndUserLikes = `SELECT * FROM Articles INNER JOIN UserLikes ON Articles.id = UserLikes.articleId WHERE Articles.id = ? AND Userlikes.userId = ?`;
   let sqlInsert = ``;
   let sqlUpdate = ``;
-  let sqlUpdateUserLikes = `UPDATE UserLikes SET isLike = ?, articleId = ?, userId = ?`;
+  let sqlUpdateUserLikes = `UPDATE UserLikes SET isLike = ? WHERE userId = ? AND articleId = ?`;
+
+  let valuesUpdateArticles = [articleId];
 
   if (likedOrNot > -1 && likedOrNot < 1) {
     likedOrNot = 0;
@@ -191,23 +261,23 @@ exports.likeOrDislike = (req, res, next) => {
 
       if (likedOrNot === 1) {
         sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
-        sqlUpdate = `UPDATE Articles SET likes = likes + 1`;
+        sqlUpdate = `UPDATE Articles SET likes = likes + 1 WHERE id = ?`;
       } else if (likedOrNot === -1) {
         sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
-        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1`;
+        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1 WHERE id = ?`;
       } else if (likedOrNot === 0) {
         res.status(500).send("Vous n'avez pas d'avis.");
         return;
       }
 
       //FIRST INSERT
-      let valueInsert = [userId, articleId, likedOrNot];
+      let valueInsert = [userId, articleId, likedOrNot, userId, articleId];
       connection.query(sqlInsert, valueInsert, (errorInsert, resultsInsert, fields) => {
         if (errorInsert) {
           res.status(500).send("Une erreur est survenue lors de l'insertion dans la table UserLikes. " + errorInsert);
         } else {
           //FIRST UPDATE
-          connection.query(sqlUpdate,(errorUpdate, resultsUpdate, fields) => {
+          connection.query(sqlUpdate, valuesUpdateArticles, (errorUpdate, resultsUpdate, fields) => {
             if (errorUpdate) {
               res.status(500).send("Une erreur est survenue lors de la mise à jour de la table Articles. " + errorUpdate);
             } else {
@@ -222,15 +292,15 @@ exports.likeOrDislike = (req, res, next) => {
       let isLike = resultsSelectArticle[0].isLike;
 
       if (likedOrNot === 1 && isLike === 0) {
-        sqlUpdate = `UPDATE Articles SET likes = likes + 1`;
+        sqlUpdate = `UPDATE Articles SET likes = likes + 1 WHERE id = ?`;
       } else if (likedOrNot === -1 && isLike === 0) {
-        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1`;
+        sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1 WHERE id = ?`;
       } else if (likedOrNot === 0) {
 
         if(isLike === 1) {
-          sqlUpdate = `UPDATE Articles SET likes = likes - 1`;
+          sqlUpdate = `UPDATE Articles SET likes = likes - 1 WHERE id = ?`;
         }else if(isLike === -1) {
-          sqlUpdate = `UPDATE Articles SET dislikes = dislikes - 1`;
+          sqlUpdate = `UPDATE Articles SET dislikes = dislikes - 1 WHERE id = ?`;
         } else {
           res.status(500).send("Vous n'avez pas d'avis.");
           return;
@@ -240,12 +310,12 @@ exports.likeOrDislike = (req, res, next) => {
         return;
       }
 
-      connection.query(sqlUpdate,(errorUpdate, resultsUpdate, fields) => {
+      connection.query(sqlUpdate,valuesUpdateArticles,(errorUpdate, resultsUpdate, fields) => {
         if (errorUpdate) {
           res.status(500).send("Une erreur est survenue lors de la mise à jour de la table Articles. " + errorUpdate);
         } else {
 
-          let valuesUpdateUserLikes = [likedOrNot, articleId, userId];
+          let valuesUpdateUserLikes = [likedOrNot, userId, articleId];
           connection.query(sqlUpdateUserLikes, valuesUpdateUserLikes, (errorUpdateUserLikes, resultsUpdateUserLikes, fields) => {
             if (errorUpdateUserLikes) {
               res.status(500).send("Une erreur est survenue lors de la mise à jour de la table UserLikes. " + errorUpdateUserLikes);
@@ -263,7 +333,7 @@ exports.commentArticle = (req, res, next) => {
 
   let sqlInsert = `INSERT INTO Commentary (userId, articleId, com) VALUES (?,?,?)`;
 
-  let valuesInsert = [req.body.userId, req.params.id, req.body.text];
+  let valuesInsert = [req.body.userId, req.params.id, req.body.content];
   connection.query(sqlInsert, valuesInsert, (errorInsert, resultsFirstInsert, fields) => {
     if (errorInsert) {
       res.status(500).send("Une erreur est survenue lors de 'insertion dans la table Commentary. " + errorInsert);
@@ -289,23 +359,44 @@ exports.getCommentByArticle = (req, res, next) => {
 };
 
 exports.deleteComment = (req, res, next) => {
-  let sqlIfExists = `SELECT EXISTS (SELECT id FROM Commentary WHERE id = ?) AS isTrue`;
-  let sqlDelete = `DELETE FROM Commentary WHERE userId = ? AND id = ?`;
 
+  let sqlIfExists = `SELECT EXISTS (SELECT id FROM Commentary  WHERE id = ?) AS isTrue`;
+
+  let sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
+
+  let sqlDelete = ``;
+
+  let valuesDelete = [];
+
+  //if Commentary exist
   let valuesIfExists = [req.params.id];
   connection.query(sqlIfExists, valuesIfExists, (errorIfExists, resultsIfExist, fields) => {
     if (errorIfExists) {
-      res.status(500).send(errorIfExists);
+      res.status(500).send("Une erreur est survenue lors du test si il y a un commentaire ou non. " + errorIfExists);
     } else {
       if(resultsIfExist[0].isTrue === 1) {
 
-        let valuesDelete = [req.body.userId, req.params.id];
-        connection.query(sqlDelete, valuesDelete, (errorDelete, resultsDelete, fields) => {
-          if (errorDelete) {
-            res.status(500).send("Une erreur est survenue lors de la suppression du commentaire. " + errorDelete);
+        connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
+          if (errorSelectRank) {
+            res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. " + errorSelectRank);
           } else {
-            res.status(200).send("Le commentaire a bien été supprimé.");
+            if (resultsSelectRank[0].rank === 4) {
+              sqlDelete = `DELETE FROM Commentary WHERE id = ?`;
+              valuesDelete = [req.params.id];
+
+            } else if(resultsSelectRank[0] !== 4){
+              sqlDelete = `DELETE FROM Commentary WHERE userId = ? AND id = ?`;
+              valuesDelete = [req.body.userId, req.params.id];
+            }
           }
+
+          connection.query(sqlDelete, valuesDelete, (errorDelete, resultsDelete, fields) => {
+            if (errorDelete) {
+              res.status(500).send("Une erreur est survenue lors de la suppression du commentaire. " + errorDelete);
+            } else {
+              res.status(200).send("Le commentaire a bien été supprimé.");
+            }
+          });
         });
       } else {
         res.status(500).send("Ce commentaire n'éxiste pas.");
