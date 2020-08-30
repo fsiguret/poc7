@@ -36,4 +36,20 @@ SOURCE path_to_your_project/sql/createDBAndTable.sql
 SOURCE path_to_your_project/sql/fillDatabase.sql
 ```
 
+## User Privileges 
+
+add manually the rank of the user
+
+```
+UPDATE Users
+SET rank = the_rank_were_you_want;
+```
+
+```
+rank            |
+--------------------------
+default         | 0 
+--------------------------
+administrator   | 4
+``` 
 
