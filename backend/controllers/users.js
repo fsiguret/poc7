@@ -16,7 +16,7 @@ exports.signUp = (req, res, next ) => {
                if(error) {
                    res.status(400).send("L'utilisateur n'a pas pu être enregistré ou existe déjà." + error);
                } else {
-                   res.status(201).send("L'utilisateur a bien été enregistré.");
+                   res.status(201).json({ message: "L'utilisateur a bien été enregistré." });
                }
             });
         })

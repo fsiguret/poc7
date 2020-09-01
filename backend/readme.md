@@ -15,7 +15,7 @@ nodemon run server
 or
 
 ```
-npm run server
+npm start server
 ```
 
 ##if not images folder
@@ -28,12 +28,6 @@ execute the command line in your Mysql terminal
 
 ```
 SOURCE path_to_your_project/sql/createDBAndTable.sql
-```
-
-##Fill the tables Articles/Users/Commentary if you want
-
-```
-SOURCE path_to_your_project/sql/fillDatabase.sql
 ```
 
 ## User Privileges 

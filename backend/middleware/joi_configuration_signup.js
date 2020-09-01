@@ -3,7 +3,7 @@ const Joi = require('joi');
 const middleware = (req, res, next) => {
   const schema = Joi.object({
       firstName: Joi.string()
-          .regex(/^[a-zA-Zéèàùüïäëöâêîôû]{3,30}(\s?[a-zA-Zéèàùüïäëöâêîôû]{3,30})*$/i)
+          .regex(/^[a-zA-Zéèàùüïäëöâêîôû]{3,30}(\s?-?[a-zA-Zéèàùüïäëöâêîôû]{3,30})*$/i)
           .required(),
 
       lastName: Joi.string()
@@ -11,7 +11,7 @@ const middleware = (req, res, next) => {
           .required(),
 
       email: Joi.string()
-          .pattern(new RegExp('^[a-zA-Z0-9]{4,30}@groupomania\.com$'))
+          .pattern(new RegExp('^[a-zA-Z0-9]{1,30}(-?[a-zA-Z0-9]{1,30})*@groupomania\.com$'))
           .required(),
 
       password: Joi.string()
