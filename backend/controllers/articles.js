@@ -22,12 +22,12 @@ exports.addArticle = (req, res, next) => {
   const isFile = (!(req.file === null || req.file === undefined));
 
   //request SQL
-  let sqlNotFile = `INSERT INTO Articles (userId, content, createAt) VALUES (?,?, NOW())`;
+  let sqlNotFile = `INSERT INTO Articles (userId, titleArticle, content, createAt) VALUES (?,?,?, NOW())`;
 
-  let sqlFile = `INSERT INTO Articles (userId, content, createAt, imageUrl) VALUES (?, ?, NOW(), ?)`;
+  let sqlFile = `INSERT INTO Articles (userId, titleArticle, content, createAt, imageUrl) VALUES (?, ?, ?, NOW(), ?)`;
 
   if (!isFile) { //if not file
-    let valuesNotFile = [req.body.userId, req.body.content];
+    let valuesNotFile = [req.body.userId, req.body.titleArticle, req.body.content];
     //QUERY INSERT
     connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
       if(error) {
@@ -39,7 +39,7 @@ exports.addArticle = (req, res, next) => {
   } else if(isFile)  { // if file
     const bodyArticle = JSON.parse(req.body.article);
     let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
-    let valuesFile = [bodyArticle.userId, bodyArticle.content, fileUrl];
+    let valuesFile = [bodyArticle.userId, bodyArticle.titleArticle, bodyArticle.content, fileUrl];
     //QUERY INSERT
     connection.query(sqlFile, valuesFile, (error, results, fields) => {
       if (error) {
@@ -74,8 +74,8 @@ exports.changeArticle = (req, res, next) => {
 
   //request SQL
   let sqlIfExist = `SELECT EXISTS (SELECT id FROM Articles WHERE id = ?) AS isTrue`;
-  let sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE userId = ? AND id = ?` ;
-  let sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
+  let sqlNotFile = `UPDATE Articles SET titleArticle = ?, content = ?, createAt = NOW() WHERE userId = ? AND id = ?` ;
+  let sqlFile = `UPDATE Articles SET titleArticle = ?, content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
   let sqlSelect = `SELECT imageUrl, userId FROM Articles WHERE id =`+ mysql.escape(req.params.id);
   let sqlSelectRank = ``;
 
@@ -99,25 +99,25 @@ exports.changeArticle = (req, res, next) => {
     } else {
       if (resultsSelectRank[0].rank === 4) {
         if (!isFile) {
-          sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE id = ?`;
-          valuesNotFile = [req.body.content, req.params.id];
+          sqlNotFile = `UPDATE Articles SET titleArticle = ?, content = ?, createAt = NOW() WHERE id = ?`;
+          valuesNotFile = [req.body.titleArticle, req.body.content, req.params.id];
         } else {
 
           let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
-          sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE id = ?`;
-          valuesFile = [objectArticle.content, fileUrl, req.params.id];
+          sqlFile = `UPDATE Articles SET titleArticle = ?, content = ?, imageUrl = ?, createAt = NOW() WHERE id = ?`;
+          valuesFile = [objectArticle.titleArticle, objectArticle.content, fileUrl, req.params.id];
         }
       } else if (resultsSelectRank[0] !== 4) {
         if (!isFile) {
-          sqlNotFile = `UPDATE Articles SET content = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
-          valuesNotFile = [req.body.content, req.body.userId, req.params.id];
+          sqlNotFile = `UPDATE Articles SET titleArticle = ?, content = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
+          valuesNotFile = [req.body.titleArticle, req.body.content, req.body.userId, req.params.id];
         } else {
 
           let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
 
-          sqlFile = `UPDATE Articles SET content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
-          valuesFile = [objectArticle.content, fileUrl, objectArticle.userId, req.params.id];
+          sqlFile = `UPDATE Articles SET titleArticle = ?, content = ?, imageUrl = ?, createAt = NOW() WHERE userId = ? AND id = ?`;
+          valuesFile = [objectArticle.titleArticle, objectArticle.content, fileUrl, objectArticle.userId, req.params.id];
         }
       }
     }
@@ -331,12 +331,12 @@ exports.likeOrDislike = (req, res, next) => {
 
 exports.commentArticle = (req, res, next) => {
 
-  let sqlInsert = `INSERT INTO Commentary (userId, articleId, com) VALUES (?,?,?)`;
+  let sqlInsert = `INSERT INTO Commentary (userId, articleId,  com, createAt) VALUES (?,?,?,NOW())`;
 
   let valuesInsert = [req.body.userId, req.params.id, req.body.content];
   connection.query(sqlInsert, valuesInsert, (errorInsert, resultsFirstInsert, fields) => {
     if (errorInsert) {
-      res.status(500).send("Une erreur est survenue lors de 'insertion dans la table Commentary. " + errorInsert);
+      res.status(500).send("Une erreur est survenue lors de l'insertion dans la table Commentary. " + errorInsert);
     } else {
       res.status(201).send("Votre commentaire a bien été ajouté.");
     }
@@ -344,14 +344,14 @@ exports.commentArticle = (req, res, next) => {
 };
 
 exports.getCommentByArticle = (req, res, next) => {
-  let sqlSelect = `SELECT com FROM Commentary WHERE articleId = ?`;
+  let sqlSelect = `SELECT * FROM Commentary WHERE articleId = ?`;
 
   let valuesSelect = [req.params.id];
   connection.query(sqlSelect, valuesSelect, (errorSelect, resultsSelect, fields) => {
     if (errorSelect) {
       res.status(500).send("Une erreur est survenue lors de la jointure entre les tables Articles et Commentary. " + errorSelect);
     } else if (resultsSelect[0] === undefined) {
-      res.status(500).send("La table Commentary est vide.");
+      res.status(500).send("Il n'y a pas de commentaires.");
     }else {
       res.status(200).json({ resultsSelect });
     }

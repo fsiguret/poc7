@@ -14,10 +14,11 @@ class AuthService {
                 if(response.data.token) {
                     localStorage.setItem('user', JSON.stringify(response.data));
                 }
-                return response.data;
+                return response;
+
             })
-            .catch(() => {
-                return "Veuillez rentrer un compte valide ou vous inscrire.";
+            .catch(error => {
+                return error.response.data;
             });
     }
 
@@ -29,17 +30,16 @@ class AuthService {
                 email: user.email,
                 password: user.password
             })
-            .then(() => {
-                return "L'utilisateur a bien été créé.";
+            .then(res => {
+                return res;
             })
-            .catch(() => {
-                return "L'utilisateur n'a pas pu être enregistré ou existe déjà.";
+            .catch(error => {
+                return error.response.data;
             });
     }
 
-    logOut() {
+    logout() {
         localStorage.removeItem('user');
-        return this.$router.push(API_URL + "login");
     }
 }
 

@@ -6,7 +6,12 @@ Vue.use(VueRouter)
 
   const routes = [
     {
-      path: '/',
+    path: '/',
+    name: 'Login',
+    component: () => import('../views/Login.vue')
+    },
+    {
+      path: '/home',
       name: 'Home',
       component: Home
     },
@@ -16,11 +21,6 @@ Vue.use(VueRouter)
       component: () => import('../views/About.vue')
     },
     {
-      path: '/login',
-      name: 'Login',
-      component: () => import('../views/Login.vue')
-    },
-    {
       path: '/signup',
       name: 'Signup',
       component: () => import('../views/Signup.vue')
@@ -28,6 +28,7 @@ Vue.use(VueRouter)
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 

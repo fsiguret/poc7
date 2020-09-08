@@ -14,13 +14,13 @@ exports.signUp = (req, res, next ) => {
 
             connection.query(sql, values, (error, results, fields) => {
                if(error) {
-                   res.status(400).send("L'utilisateur n'a pas pu être enregistré ou existe déjà." + error);
+                   res.status(400).send("L'utilisateur n'a pas pu être enregistré ou existe déjà.");
                } else {
                    res.status(201).json({ message: "L'utilisateur a bien été enregistré." });
                }
             });
         })
-        .catch(() => res.status(400).send("Une erreur c'est produite lors du hash."));
+        .catch(() => res.status(500).send("Une erreur c'est produite lors du hash."));
 };
 
 exports.login = (req, res, next ) => {
@@ -29,7 +29,7 @@ exports.login = (req, res, next ) => {
 
     connection.query(sql, value,(error, results, fields) => {
         if(error) {
-            res.status(500).send("Une erreur est survenue lors de l'accès à la base de donnée" + error);
+            res.status(500).send("Une erreur est survenue lors de l'accès à la base de donnée");
         } else  {
             if(results[0] !== undefined) {
                 bcrypt.compare(req.body.password, results[0].password)
@@ -49,7 +49,7 @@ exports.login = (req, res, next ) => {
                         }
                     })
                     .catch(() => {
-                        res.status(400).send("Une erreur c'est produite lors de la comparaison des mots de passe.")
+                        res.status(500).send("Une erreur c'est produite lors de la comparaison des mots de passe.")
                     });
             } else {
                 res.status(400).send("L'utilisateur n'existe pas");

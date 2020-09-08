@@ -11,7 +11,7 @@ const middleware = (req, res, next) => {
           .required(),
 
       email: Joi.string()
-          .pattern(new RegExp('^[a-zA-Z0-9]{1,30}(-?[a-zA-Z0-9]{1,30})*@groupomania\.com$'))
+          .pattern(new RegExp('^[a-zA-Z0-9]{1,30}-?[a-zA-Z0-9]{1,30}@groupomania\.com$'))
           .required(),
 
       password: Joi.string()

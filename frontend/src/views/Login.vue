@@ -1,42 +1,75 @@
 <template>
   <div class="login">
     <h1>Connexion</h1>
-    <form>
+    <form @submit.prevent="handleLogin">
       <div>
         <label for="email">E-mail : </label>
-        <input type="text" name="email" id="email" required>
+        <input type="text" v-model="user.email" v-validate="'required'" name="email" id="email">
+        <div v-if="errors.has('email')">
+          <p>Le prénom est requis !</p>
+        </div>
       </div>
       <div>
         <label for="password">Mot de passe : </label>
-        <input type="text" name="password" id="password" required>
+        <input type="password" v-model="user.password" v-validate="'required'" name="password" id="password">
+        <div v-if="errors.has('password')">
+          <p>Le prénom est requis !</p>
+        </div>
       </div>
       <div>
-        <input v-on:click="signIn" type="submit" value="Connexion">
+        <input type="submit" value="Connexion">
+        <p>{{message}}</p>
       </div>
     </form>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
+import User from '../models/User';
 
 export default {
 name: "Login",
+  data() {
+    return {
+      user: new User('','','',''),
+      message: ""
+    };
+  },
+  computed: {
+    loggedIn() {
+      return this.$store.state.auth.status.loggedIn;
+    }
+  },
+  created() {
+    if(this.loggedIn) {
+      this.$router.push("/home");
+    }
+  },
   methods: {
-    signIn(event) {
-      const eMail = document.getElementById('email');
-      const password = document.getElementById('password');
-      event.preventDefault();
-      axios
-        .post("http://localhost:3000/api/auth/login", {
-          email: eMail.value,
-          password: password.value
-        })
-        .then(response => (console.log(response)))
-        .catch(error => (console.log(error)))
+    handleLogin() {
+      this.$validator.validateAll()
+          .then( isValid => {
+            if (isValid) {
+              this.$store.dispatch('auth/login', this.user)
+                  .then(res => {
+
+                    if(res.status === 200) {
+                      this.message = res.data.message;
+                      this.$router.push('/home');
+                    } else {
+                      this.message = res;
+                    }
+                  })
+                  .catch(error => {
+                    this.message = error;
+                  })
+            }
+          })
+          .catch( error => {
+            this.message = error;
+          });
     }
   }
-
 }
 </script>
 
