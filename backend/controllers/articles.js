@@ -169,60 +169,54 @@ exports.changeArticle = (req, res, next) => {
 };
 
 exports.deleteOneArticle = (req, res, next) => {
-  //request SQL
-  let sqlIfExist = `SELECT EXISTS (SELECT id FROM Articles WHERE id = ?) AS isTrue`;
-  let sqlDelete = ``;
-  let sqlSelect = `SELECT * FROM Articles WHERE id =`+ mysql.escape(req.params.id);
+  let selectIfExist = `SELECT * FROM Articles WHERE id = ? AND EXISTS (SELECT id FROM Articles WHERE id = ?)`;
   let sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
-
+  let sqlDelete = ``;
 
   let value = [];
-  let valueIfExist = [req.params.id];
+  let valueIfExist = [req.params.id, req.body.userId];
 
-  connection.query(sqlIfExist,valueIfExist, (errorSelectIfExist, resultsSelectIfExist, fields) => {
-    if (errorSelectIfExist) {
-      res.status(500).send("Une erreur est survenue lors de la sélection de l'article." + errorSelect);
-    } else if(resultsSelectIfExist[0].isTrue === 1) {
+  if(!req.body.userId) {
+    res.status(500).send("Veuillez définir un utilisateur.");
+  }
 
-      //QUERY SELECT
-      connection.query(sqlSelect, (errorSelect, resultsSelect, fields) => {
-        if (errorSelect) {
-          res.status(500).send("l'article n'a pas pu être supprimé.");
+  //SELECT ARTICLE QUERRY
+  connection.query(selectIfExist, valueIfExist, (errorIfExist, resultsIfExist, fields) => {
+    if (errorIfExist || resultsIfExist[0] === undefined) {
+      if (resultsIfExist[0] === undefined) {
+        res.status(404).send("L'article n'éxiste pas.");
+      } else {
+        res.status(500).send("Une erreur c'est produite lors de la séléction de l'article.") ;
+      }
+    } else {
+      //SELECT RANK QUERRY
+      connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
+        if (errorSelectRank || resultsSelectRank[0] === undefined) {
+          res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur.");
         } else {
-
-          connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
-            if (errorSelectRank) {
-              res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. " + errorSelectRank);
+          if (resultsSelectRank[0] === 4) {
+            sqlDelete = `DELETE FROM Articles WHERE id = ?`;
+            value = [req.params.id];
+          } else if (resultsSelectRank[0] !== 4) {
+            sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
+            value = [req.params.id, req.body.userId];
+          }
+          //DELETE QUERRY
+          connection.query(sqlDelete, value, (error, results, fields) => {
+            if (error || results.affectedRows === 0) {
+              res.status(500).send("l'article n'a pas pu être supprimé.");
             } else {
-              if (resultsSelectRank[0].rank === 4) {
-                sqlDelete = `DELETE FROM Articles WHERE id = ?`;
-                value = [req.params.id];
-
-              } else if (resultsSelectRank[0] !== 4) {
-                sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
-                value = [req.params.id, req.body.userId];
+              let isImg = ((!(resultsIfExist[0].imageUrl === null || resultsIfExist[0].imageUrl === undefined)));
+              if (isImg) {
+                const filename = resultsIfExist[0].imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {
+                });
               }
+              res.status(200).send("L'article a bien été supprimé.");
             }
-            //QUERY DELETE
-            connection.query(sqlDelete, value, (error, results, fields) => {
-              if (error) {
-                res.status(500).send("l'article n'a pas pu être supprimé.");
-              } else {
-                let isArticle = ((!(resultsSelect[0] === null || resultsSelect[0] === undefined)));
-
-                if (isArticle) {
-                  const filename = resultsSelect[0].imageUrl.split('/images/')[1];
-                  fs.unlink(`images/${filename}`, () => {
-                  });
-                }
-                res.status(200).send("L'article a bien été supprimé.");
-              }
-            });
           });
         }
       });
-    } else {
-      res.status(400).send("L'article n'existe pas.");
     }
   });
 };

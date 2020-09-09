@@ -3,6 +3,7 @@
     <div v-if="showDetail">
       <h1>{{article.titleArticle}}</h1>
       <button @click="detailArticle">Fermer</button>
+      <button v-if="ifSameUser" @click="deleteArticle(article.id)" type="button">Supprimer</button>
       <article>
         <h2>{{article.titleArticle}}</h2>
         <p>{{article.content}}</p>
@@ -51,20 +52,27 @@ export default {
       ifSameUser: false,
       article: '',
       articles: [],
-      commentary:[],
-      message:''
+      commentary: [],
+      message: ''
     };
   },
   mounted() {
+    let user = JSON.parse(localStorage.getItem('user'));
+
     UserService.getAllArticles()
         .then(response => {
           response.data.results.forEach(article => {
+            if(user.userId === article.userId) {
+              this.ifSameUser = true;
+            } else {
+              this.ifSameUser = false;
+            }
             article.createAt = moment(String(article.createAt)).format('DD/MM/YYYY HH:MM');
             this.articles.push( new Article(article.id, article.userId, article.titleArticle, article.content, article.createAt, article.imageUrl, article.likes, article.dislikes));
           });
         })
         .catch(error => {
-          this.message = error.response.data;
+          this.message = error;
         });
   },
   methods: {
@@ -97,6 +105,19 @@ export default {
 
     deleteCommentary() {
 
+    },
+
+    deleteArticle(id) {
+      let user = JSON.parse(localStorage.getItem('user'));
+     this.message= user.userId
+      UserService.deleteArticle(id, user.userId)
+          .then(response => {
+            this.message = response.data;
+            this.$router.push('/');
+          })
+          .catch(error => {
+            this.message = error;
+          })
     }
   }
 }

@@ -9,54 +9,54 @@ const initialState = user
 export const auth = {
     namespaced: true,
     state: initialState,
+    mutations: {
+        LOGIN_SUCCESS(state, user) {
+            state.status.loggedIn = true;
+            state.user = user;
+        },
+        LOGIN_FAILURE(state) {
+            state.status.loggedIn = false;
+            state.user = null;
+        },
+        LOGOUT(state) {
+            state.status.loggedIn = false;
+            state.user = null;
+        },
+        REGISTER_SUCCESS(state) {
+            state.status.loggedIn = false;
+        },
+        REGISTER_FAILURE(state) {
+            state.status.loggedIn = false;
+        }
+    },
     actions: {
         login({ commit }, user) {
             return AuthService.login(user).then(
                 user => {
-                    commit('loginSuccess', user);
+                    commit('LOGIN_SUCCESS', user);
                     return Promise.resolve(user);
                 },
                 error => {
-                    commit('loginFailure');
+                    commit('LOGIN_FAILURE');
                     return Promise.reject(error);
                 }
             );
         },
         logout({ commit }) {
             AuthService.logout();
-            commit('logout');
+            commit('LOGOUT');
         },
         register({ commit }, user) {
             return AuthService.signup(user).then(
                 response => {
-                    commit('registerSuccess');
+                    commit('REGISTER_SUCCESS');
                     return Promise.resolve(response);
                 },
                 error => {
-                    commit('registerFailure');
+                    commit('REGISTER_FAILURE');
                     return Promise.reject(error);
                 }
             );
-        }
-    },
-    mutations: {
-        loginSuccess(state, user) {
-            state.status.loggedIn = true;
-            state.user = user;
-        },
-        loginFailure(state) {
-            state.status.loggedIn = false;
-            state.user = null;
-        },
-        logout(state) {
-            state.status.loggedIn = false;
-            state.user = null;
-        },
-        registerSuccess(state) {
-            state.status.loggedIn = false;
-        },
-        registerFailure(state) {
-            state.status.loggedIn = false;
         }
     }
 };
