@@ -116,7 +116,7 @@ export default {
             this.$router.push('/');
           })
           .catch(error => {
-            this.message = error;
+            this.message = error.response.data;
           })
     }
   }

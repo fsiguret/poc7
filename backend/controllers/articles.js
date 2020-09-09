@@ -40,15 +40,16 @@ exports.addArticle = (req, res, next) => {
     const bodyArticle = JSON.parse(req.body.article);
     let fileUrl = `${req.protocol}://${req.get('host')}/images/${req.file.filename}`;
     let valuesFile = [bodyArticle.userId, bodyArticle.titleArticle, bodyArticle.content, fileUrl];
-    //QUERY INSERT
-    connection.query(sqlFile, valuesFile, (error, results, fields) => {
-      if (error) {
-        fs.unlink(`images/${req.file.filename}`, () => {});
-        res.status(500).send("L'article n'a pas pu être enregistré." + error);
-      } else {
-        res.status(201).json({ message: "L'article a bien été enregistré avec fichier." });
-      }
-    });
+
+        //QUERY INSERT
+        connection.query(sqlFile, valuesFile, (error, results, fields) => {
+          if (error) {
+            fs.unlink(`images/${req.file.filename}`, () => {});
+            res.status(500).send("L'article n'a pas pu être enregistré." + error);
+          } else {
+            res.status(201).json({ message: "L'article a bien été enregistré avec fichier." });
+          }
+        });
   }
 };
 

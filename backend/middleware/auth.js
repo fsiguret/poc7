@@ -19,10 +19,20 @@ module.exports = (req, res, next) => {
                 const decodedToken = jwtoken.verify(token, privateKey)
                 const userId = decodedToken.userId;
 
-                if (req.body.userId && req.body.userId !== userId) {
-                    res.status(401).send("Votre userID est invalide.");
-                } else {
-                    next();
+                const ifFile = (!(req.file === null || req.file === undefined));
+                if(!ifFile) {
+                    if (req.body.userId && req.body.userId !== userId) {
+                        res.status(401).send("Votre userID est invalide.");
+                    } else {
+                        next();
+                    }
+                } else if(ifFile) {
+                    const objectArticle = JSON.parse(req.body.article);
+                    if(objectArticle.userId && objectArticle.userId !== userId) {
+                        res.status(401).send("Votre userID est invalide.");
+                    } else {
+                        next();
+                    }
                 }
             }
         })

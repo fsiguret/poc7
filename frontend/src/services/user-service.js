@@ -3,12 +3,6 @@ import authHeader from "@/services/auth-header";
 
 const API_URL = "http://localhost:3000/api/articles/";
 
-// const instance = axios.create({
-//     baseURL: "http://localhost:3000/api/articles/",
-//     timeout: 1000,
-//     headers: authHeader()
-// });
-
 class UserService {
     getAllArticles() {
         return axios.get(API_URL, { headers : authHeader() });
@@ -39,9 +33,12 @@ class UserService {
     }
 
     deleteArticle(id, user) {
-        console.log(user, id);
-        // return axios.delete(API_URL + id, { headers : authHeader(), data : { userId: user }});
-        return axios.delete(API_URL + id, { headers : authHeader()});
+        return axios({
+           method: 'DELETE',
+           url: API_URL + id,
+           headers: authHeader(),
+           data: { userId: user}
+        });
     }
 
     deleteComment(id) {
