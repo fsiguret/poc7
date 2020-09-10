@@ -6,7 +6,10 @@
       <button v-if="ifSameUser" @click="deleteArticle(article.id)" type="button">Supprimer</button>
       <article>
         <h2>{{article.titleArticle}}</h2>
-        <p>{{article.content}}</p>
+        <div>
+          <p>{{article.content}}</p>
+          <img v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
+        </div>
         <div>
           <p>créé le : {{article.createAt}}</p>
           <ul>
@@ -34,18 +37,22 @@
         <img v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
       </article>
     </div>
-
+    <AddArticle v-if="!showDetail"/>
   </section>
 </template>
 
 <script>
 import moment from "moment";
+import AddArticle from "@/components/AddArticle";
 import Article from "@/models/Article";
 import Comment from "@/models/Commentary";
 import UserService from '@/services/user-service';
 
 export default {
   name: 'Main',
+  components: {
+    AddArticle
+  },
   data() {
     return {
       showDetail: false,
@@ -67,7 +74,9 @@ export default {
             } else {
               this.ifSameUser = false;
             }
-            article.createAt = moment(String(article.createAt)).format('DD/MM/YYYY HH:MM');
+
+            article.createAt = moment(String(article.createAt)).format('DD/MM/YYYY HH:mm');
+
             this.articles.push( new Article(article.id, article.userId, article.titleArticle, article.content, article.createAt, article.imageUrl, article.likes, article.dislikes));
           });
         })
@@ -75,12 +84,21 @@ export default {
           this.message = error;
         });
   },
+  updated() {
+    let user = JSON.parse(localStorage.getItem('user'));
+    if (user.userId === this.article.userId) {
+      this.ifSameUser = true;
+    } else {
+      this.ifSameUser = false;
+    }
+  },
   methods: {
     detailArticle(id) {
       if(!this.showDetail) {
         UserService.getOneArticle(id)
             .then(response => {
-              response.data.results[0].createAt = moment(String(response.data.results[0].createAt)).format('DD/MM/YYYY HH:MM');
+              response.data.results[0].createAt = moment(String(response.data.results[0].createAt)).format('DD/MM/YYYY HH:mm');
+
               this.article = new Article(response.data.results[0].id, response.data.results[0].userId, response.data.results[0].titleArticle, response.data.results[0].content, response.data.results[0].createAt, response.data.results[0].imageUrl, response.data.results[0].likes, response.data.results[0].dislikes);
               this.showDetail = true;
 

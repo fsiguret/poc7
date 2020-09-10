@@ -17,7 +17,12 @@ class UserService {
     }
 
     postArticle(data) {
-        return axios.post(API_URL, { headers : authHeader(), body: data });
+        return axios({
+           method: "POST",
+           url: API_URL,
+           headers: authHeader(),
+           data: data
+        });
     }
 
     postComment(id, data) {

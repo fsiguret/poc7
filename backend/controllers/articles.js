@@ -31,9 +31,9 @@ exports.addArticle = (req, res, next) => {
     //QUERY INSERT
     connection.query(sqlNotFile, valuesNotFile, (error, results, fields) => {
       if(error) {
-        res.status(500).send("L'article n'a pas pu être enregistré. " + error);
+        res.status(500).send("L'article n'a pas pu être enregistré. ");
       } else {
-        res.status(201).json({ message: "L'article a bien été enregistré sans fichier." });
+        res.status(201).send("L'article a bien été enregistré sans fichier.");
       }
     });
   } else if(isFile)  { // if file
@@ -42,12 +42,13 @@ exports.addArticle = (req, res, next) => {
     let valuesFile = [bodyArticle.userId, bodyArticle.titleArticle, bodyArticle.content, fileUrl];
 
         //QUERY INSERT
+
         connection.query(sqlFile, valuesFile, (error, results, fields) => {
           if (error) {
             fs.unlink(`images/${req.file.filename}`, () => {});
-            res.status(500).send("L'article n'a pas pu être enregistré." + error);
+            res.status(500).send("L'article n'a pas pu être enregistré.");
           } else {
-            res.status(201).json({ message: "L'article a bien été enregistré avec fichier." });
+            res.status(201).send("L'article a bien été enregistré avec fichier.");
           }
         });
   }
