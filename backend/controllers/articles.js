@@ -358,7 +358,7 @@ exports.deleteComment = (req, res, next) => {
 
   let sqlIfExists = `SELECT EXISTS (SELECT id FROM Commentary  WHERE id = ?) AS isTrue`;
 
-  let sqlSelectRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
+  let sqlSelectRank = `SELECT * FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
 
   let sqlDelete = ``;
 
@@ -368,27 +368,27 @@ exports.deleteComment = (req, res, next) => {
   let valuesIfExists = [req.params.id];
   connection.query(sqlIfExists, valuesIfExists, (errorIfExists, resultsIfExist, fields) => {
     if (errorIfExists) {
-      res.status(500).send("Une erreur est survenue lors du test si il y a un commentaire ou non. " + errorIfExists);
+      res.status(500).send("Une erreur est survenue lors du test si il y a un commentaire ou non. ");
     } else {
       if(resultsIfExist[0].isTrue === 1) {
 
         connection.query(sqlSelectRank, (errorSelectRank, resultsSelectRank, fields) => {
           if (errorSelectRank) {
-            res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. " + errorSelectRank);
+            res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur. ");
           } else {
             if (resultsSelectRank[0].rank === 4) {
               sqlDelete = `DELETE FROM Commentary WHERE id = ?`;
               valuesDelete = [req.params.id];
 
-            } else if(resultsSelectRank[0] !== 4){
+            } else if(resultsSelectRank[0].rank !== 4){
               sqlDelete = `DELETE FROM Commentary WHERE userId = ? AND id = ?`;
               valuesDelete = [req.body.userId, req.params.id];
             }
           }
 
           connection.query(sqlDelete, valuesDelete, (errorDelete, resultsDelete, fields) => {
-            if (errorDelete) {
-              res.status(500).send("Une erreur est survenue lors de la suppression du commentaire. " + errorDelete);
+            if (errorDelete || resultsDelete.affectedRows === 0) {
+              res.status(500).send("Vous ne pouvez pas supprimer ce commentaire.");
             } else {
               res.status(200).send("Le commentaire a bien été supprimé.");
             }

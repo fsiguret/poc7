@@ -3,7 +3,7 @@
     <div v-if="showDetail">
       <h1>{{article.titleArticle}}</h1>
       <button @click="detailArticle">Fermer</button>
-      <button v-if="ifSameUser" @click="deleteArticle(article.id)" type="button">Supprimer</button>
+      <button v-if="ifSameUserArticle" @click="deleteArticle(article.id)" type="button">Supprimer</button>
       <article>
         <h2>{{article.titleArticle}}</h2>
         <div>
@@ -24,7 +24,7 @@
         <div v-for="com in commentary" :key="com.id">
           <p>{{com.com}}</p>
           <p>{{com.createAt}}</p>
-          <button v-if="ifSameUser" @click="deleteCommentary(com.id)" type="button">Supprimer</button>
+          <button v-if="ifUserSameCom(com.userId)" @click="deleteCommentary(com.id)" type="button">Supprimer</button>
         </div>
         <AddCommentary v-bind:articleId="article.id"/>
       </aside>
@@ -59,7 +59,7 @@ export default {
   data() {
     return {
       showDetail: false,
-      ifSameUser: false,
+      ifSameUserArticle: false,
       article: '',
       articles: [],
       commentary: [],
@@ -67,16 +67,10 @@ export default {
     };
   },
   mounted() {
-    let user = JSON.parse(localStorage.getItem('user'));
 
     UserService.getAllArticles()
         .then(response => {
           response.data.results.forEach(article => {
-            if(user.userId === article.userId) {
-              this.ifSameUser = true;
-            } else {
-              this.ifSameUser = false;
-            }
 
             article.createAt = moment(String(article.createAt)).format('DD/MM/YYYY HH:mm');
 
@@ -89,14 +83,25 @@ export default {
   },
   updated() {
     let user = JSON.parse(localStorage.getItem('user'));
+
     if (user.userId === this.article.userId) {
-      this.ifSameUser = true;
+      this.ifSameUserArticle = true;
     } else {
-      this.ifSameUser = false;
+      this.ifSameUserArticle = false;
     }
   },
   methods: {
+    ifUserSameCom(id) {
+      let user = JSON.parse(localStorage.getItem('user'));
+
+      if (user.userId === id) {
+        return true;
+      } else {
+        return false;
+      }
+    },
     detailArticle(id) {
+
       if(!this.showDetail) {
         UserService.getOneArticle(id)
             .then(response => {
@@ -108,6 +113,7 @@ export default {
               UserService.getComment(id)
                 .then(response => {
                   response.data.resultsSelect.forEach(comment => {
+
                     comment.createAt = moment(String(comment.createAt)).format('DD/MM/YYYY HH:MM');
                     this.message = '';
                     this.commentary.push(new Comment(comment.id, comment.userId, comment.articleId, comment.createAt, comment.com));
@@ -126,11 +132,22 @@ export default {
     },
     deleteArticle(id) {
       let user = JSON.parse(localStorage.getItem('user'));
-     this.message= user.userId
+
       UserService.deleteArticle(id, user.userId)
           .then(response => {
             this.message = response.data;
             this.$router.push('/');
+          })
+          .catch(error => {
+            this.message = error.response.data;
+          });
+    },
+    deleteCommentary(id) {
+      let user = JSON.parse(localStorage.getItem('user'));
+
+      UserService.deleteComment(id, user.userId)
+          .then(response => {
+            this.message = response.data;
           })
           .catch(error => {
             this.message = error.response.data;

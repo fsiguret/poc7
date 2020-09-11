@@ -42,11 +42,7 @@ name: "AddCommentary",
                 error.message ||
                 error.toString();
           });
-    },
-
-    deleteCommentary() {
-
-    },
+    }
   }
 }
 </script>
