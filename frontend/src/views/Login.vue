@@ -6,14 +6,14 @@
         <label for="email">E-mail : </label>
         <input type="text" v-model="user.email" v-validate="'required'" name="email" id="email">
         <div v-if="errors.has('email')">
-          <p>Le prénom est requis !</p>
+          <p>L'adresse élèctronique est requise !</p>
         </div>
       </div>
       <div>
         <label for="password">Mot de passe : </label>
         <input type="password" v-model="user.password" v-validate="'required'" name="password" id="password">
         <div v-if="errors.has('password')">
-          <p>Le prénom est requis !</p>
+          <p>Le mot de passe est requis !</p>
         </div>
       </div>
       <div>

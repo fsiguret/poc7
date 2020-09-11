@@ -26,6 +26,7 @@
           <p>{{com.createAt}}</p>
           <button v-if="ifSameUser" @click="deleteCommentary(com.id)" type="button">Supprimer</button>
         </div>
+        <AddCommentary v-bind:articleId="article.id"/>
       </aside>
     </div>
     <div v-else-if="!showDetail">
@@ -44,6 +45,7 @@
 <script>
 import moment from "moment";
 import AddArticle from "@/components/AddArticle";
+import AddCommentary from "@/components/AddCommentary";
 import Article from "@/models/Article";
 import Comment from "@/models/Commentary";
 import UserService from '@/services/user-service';
@@ -51,7 +53,8 @@ import UserService from '@/services/user-service';
 export default {
   name: 'Main',
   components: {
-    AddArticle
+    AddArticle,
+    AddCommentary
   },
   data() {
     return {
@@ -106,12 +109,13 @@ export default {
                 .then(response => {
                   response.data.resultsSelect.forEach(comment => {
                     comment.createAt = moment(String(comment.createAt)).format('DD/MM/YYYY HH:MM');
+                    this.message = '';
                     this.commentary.push(new Comment(comment.id, comment.userId, comment.articleId, comment.createAt, comment.com));
                   });
                 })
                 .catch(error => {
                   this.message = error.response.data;
-                })
+                });
             })
             .catch(error => {
               this.message = error.response.data;
@@ -120,11 +124,6 @@ export default {
         this.showDetail = false;
       }
     },
-
-    deleteCommentary() {
-
-    },
-
     deleteArticle(id) {
       let user = JSON.parse(localStorage.getItem('user'));
      this.message= user.userId
@@ -135,7 +134,7 @@ export default {
           })
           .catch(error => {
             this.message = error.response.data;
-          })
+          });
     }
   }
 }

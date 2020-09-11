@@ -26,7 +26,12 @@ class UserService {
     }
 
     postComment(id, data) {
-        return axios.post(API_URL + id + "/comment", { headers : authHeader(), body: data });
+        return axios({
+            method: "POST",
+            url: API_URL + id + "/comment",
+            headers: authHeader(),
+            data: data
+        });
     }
 
     putLikeOrDislike(id, data) {
@@ -46,8 +51,13 @@ class UserService {
         });
     }
 
-    deleteComment(id) {
-        return axios.delete(API_URL + id + "/delcom", { headers : authHeader()});
+    deleteComment(id, user) {
+        return axios({
+            method: 'DELETE',
+            url: API_URL + id + "/delcom",
+            headers: authHeader(),
+            data: { userId: user }
+        })
     }
 }
 

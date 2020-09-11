@@ -329,7 +329,7 @@ exports.commentArticle = (req, res, next) => {
 
   let sqlInsert = `INSERT INTO Commentary (userId, articleId,  com, createAt) VALUES (?,?,?,NOW())`;
 
-  let valuesInsert = [req.body.userId, req.params.id, req.body.content];
+  let valuesInsert = [req.body.userId, req.params.id, req.body.com];
   connection.query(sqlInsert, valuesInsert, (errorInsert, resultsFirstInsert, fields) => {
     if (errorInsert) {
       res.status(500).send("Une erreur est survenue lors de l'insertion dans la table Commentary. " + errorInsert);
