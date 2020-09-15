@@ -1,6 +1,6 @@
 <template>
   <div class="addArticle">
-    <router-link to="/newArticle">+</router-link>
+    <router-link to="/newArticle"><font-awesome-icon icon="plus"/></router-link>
   </div>
 </template>
 
@@ -12,18 +12,14 @@ name: "AddArticle"
 
 <style lang="scss" scoped>
   .addArticle {
-    position: sticky;
-    top: 1em;
     width: 2em;
     height: 2em;
     background-color: #42b983;
     border-radius: 50%;
-    a {
-      text-decoration: none;
-      text-align: center;
+    svg {
+      height: 100%;
       color: white;
-      margin: auto;
-      font-size: 1.6em;
     }
   }
+
 </style>

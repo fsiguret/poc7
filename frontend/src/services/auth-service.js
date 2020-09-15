@@ -1,4 +1,5 @@
 import axios from "axios";
+import authHeader from "@/services/auth-header";
 
 const API_URL = "http://localhost:3000/api/auth/";
 
@@ -36,6 +37,19 @@ class AuthService {
             .catch(error => {
                 return error.response.data;
             });
+    }
+
+    getUser(id) {
+        return axios.get(API_URL + id, { headers: authHeader() });
+    }
+
+    deleteUser(data) {
+        return axios({
+            method: "DELETE",
+            url: API_URL + "delete",
+            headers: authHeader(),
+            data: data
+        });
     }
 
     logout() {

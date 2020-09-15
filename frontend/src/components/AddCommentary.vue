@@ -6,7 +6,7 @@
     <div v-if="errors.has('content')">
       <p>Un contenu est obligatoire !</p>
     </div>
-    <p>{{message}}</p>
+    <p v-if="message">{{message}}</p>
   </form>
 </template>
 

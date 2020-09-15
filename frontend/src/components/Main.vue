@@ -11,7 +11,7 @@
           <img v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
         </div>
         <div>
-          <p>créé le : {{article.createAt}}</p>
+          <p>créé {{article.createAt}}</p>
           <ul>
             <li>{{article.likes}}</li>
             <li>{{article.dislikes}}</li>
@@ -46,6 +46,7 @@
 import moment from "moment";
 import AddArticle from "@/components/AddArticle";
 import AddCommentary from "@/components/AddCommentary";
+
 import Article from "@/models/Article";
 import Comment from "@/models/Commentary";
 import UserService from '@/services/user-service';
@@ -68,11 +69,40 @@ export default {
   },
   mounted() {
 
+    moment.locale('fr', {
+      longDateFormat: {
+        LT: 'HH:mm',
+        LTS: 'HH:mm:ss',
+        L: 'DD/MM/YYYY',
+      },
+      calendar: {
+        sameDay: '[Aujourd’hui à] LT',
+        lastDay: '[Hier à] LT',
+        sameElse: 'L'
+      },
+      relativeTime: {
+        future: 'dans %s',
+        past: 'il y a %s',
+        s: 'quelques secondes',
+        m: 'une minute',
+        mm: '%d minutes',
+        h: 'une heure',
+        hh: '%d heures',
+        d: 'un jour',
+        dd: '%d jours',
+        M: 'un mois',
+        MM: '%d mois',
+        y: 'un an',
+        yy: '%d ans'
+      }
+    });
+
     UserService.getAllArticles()
         .then(response => {
           response.data.results.forEach(article => {
 
-            article.createAt = moment(String(article.createAt)).format('DD/MM/YYYY HH:mm');
+            console.log(article.createAt);
+            article.createAt = moment(String(article.createAt)).fromNow();
 
             this.articles.push( new Article(article.id, article.userId, article.titleArticle, article.content, article.createAt, article.imageUrl, article.likes, article.dislikes));
           });
@@ -81,6 +111,7 @@ export default {
           this.message = error;
         });
   },
+
   updated() {
     let user = JSON.parse(localStorage.getItem('user'));
 
@@ -91,6 +122,7 @@ export default {
     }
   },
   methods: {
+
     ifUserSameCom(id) {
       let user = JSON.parse(localStorage.getItem('user'));
 
@@ -100,12 +132,13 @@ export default {
         return false;
       }
     },
+
     detailArticle(id) {
 
       if(!this.showDetail) {
         UserService.getOneArticle(id)
             .then(response => {
-              response.data.results[0].createAt = moment(String(response.data.results[0].createAt)).format('DD/MM/YYYY HH:mm');
+              response.data.results[0].createAt = moment(String(response.data.results[0].createAt)).fromNow();
 
               this.article = new Article(response.data.results[0].id, response.data.results[0].userId, response.data.results[0].titleArticle, response.data.results[0].content, response.data.results[0].createAt, response.data.results[0].imageUrl, response.data.results[0].likes, response.data.results[0].dislikes);
               this.showDetail = true;
@@ -113,8 +146,8 @@ export default {
               UserService.getComment(id)
                 .then(response => {
                   response.data.resultsSelect.forEach(comment => {
-
-                    comment.createAt = moment(String(comment.createAt)).format('DD/MM/YYYY HH:MM');
+                    
+                    comment.createAt = moment(String(comment.createAt)).fromNow();
                     this.message = '';
                     this.commentary.push(new Comment(comment.id, comment.userId, comment.articleId, comment.createAt, comment.com));
                   });
@@ -130,6 +163,7 @@ export default {
         this.showDetail = false;
       }
     },
+
     deleteArticle(id) {
       let user = JSON.parse(localStorage.getItem('user'));
 
@@ -142,6 +176,7 @@ export default {
             this.message = error.response.data;
           });
     },
+
     deleteCommentary(id) {
       let user = JSON.parse(localStorage.getItem('user'));
 
