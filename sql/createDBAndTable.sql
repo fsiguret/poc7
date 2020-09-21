@@ -50,7 +50,7 @@ ALTER TABLE Articles
 ADD CONSTRAINT fk_user_id
 	    FOREIGN KEY (userId)
 	    REFERENCES Users(userId)
-	    ON DELETE CASCADE ;
+	    ON DELETE CASCADE;
 
 ALTER TABLE UserLikes
 ADD CONSTRAINT fk_article_id
@@ -73,5 +73,5 @@ ADD CONSTRAINT fk_article_com_id
 ALTER TABLE Commentary
 ADD CONSTRAINT fk_user_com_id
         FOREIGN KEY (userId)
-        REFERENCES Articles(userId)
+        REFERENCES Users(userId)
         ON DELETE CASCADE;

@@ -1,17 +1,7 @@
 <template>
   <div id="app">
     <header>
-      <nav id="nav">
-        <div v-if="isLogged">
-          <router-link to="/home">Accueil</router-link>
-          <router-link to="/user-profile">Profil</router-link>
-          <a href @click.prevent="logOut">Déconnexion</a>
-        </div>
-        <div v-else>
-          <router-link to="/">Connexion</router-link>
-          <router-link to="/signup">Inscription</router-link>
-        </div>
-      </nav>
+      <NavBar v-bind:isLogged="isLogged"/>
     </header>
     <main>
       <router-view/>
@@ -45,28 +35,26 @@
 }
 </style>
 <script>
+import NavBar from "@/components/NavBar";
 export default {
+  components: {
+    NavBar
+  },
   data() {
     return {
       isLogged: false
-    };
+    }
   },
   computed: {
     currentUser() {
       return this.$store.state.auth.status.loggedIn;
     }
   },
-  mounted() {
+  created() {
     this.isLogged = this.currentUser;
   },
   updated() {
     this.isLogged = this.currentUser;
-  },
-  methods: {
-    logOut() {
-      this.$store.dispatch('auth/logout');
-      this.$router.push('/');
-    }
   }
 }
 </script>

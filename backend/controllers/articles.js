@@ -330,6 +330,7 @@ exports.commentArticle = (req, res, next) => {
   let sqlInsert = `INSERT INTO Commentary (userId, articleId,  com, createAt) VALUES (?,?,?,NOW())`;
 
   let valuesInsert = [req.body.userId, req.params.id, req.body.com];
+
   connection.query(sqlInsert, valuesInsert, (errorInsert, resultsFirstInsert, fields) => {
     if (errorInsert) {
       res.status(500).send("Une erreur est survenue lors de l'insertion dans la table Commentary. " + errorInsert);
@@ -347,7 +348,7 @@ exports.getCommentByArticle = (req, res, next) => {
     if (errorSelect) {
       res.status(500).send("Une erreur est survenue lors de la jointure entre les tables Articles et Commentary. " + errorSelect);
     } else if (resultsSelect[0] === undefined) {
-      res.status(500).send("Il n'y a pas de commentaires.");
+      res.status(404).send("Il n'y a pas de commentaires.");
     }else {
       res.status(200).json({ resultsSelect });
     }

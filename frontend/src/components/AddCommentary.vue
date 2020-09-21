@@ -1,7 +1,7 @@
 <template>
   <form @submit.prevent="newCommentary(articleId)">
     <label for="content">Commentaire</label>
-    <input type="text" v-model="commentary.com" v-validate="'required'" name="content" id="content" placeholder="Votre commentaire...">
+    <textarea v-model="commentary.com" v-validate="'required'" name="content" id="content">Laissez votre commentaire ici !</textarea>
     <input type="submit" value="Commenter">
     <div v-if="errors.has('content')">
       <p>Un contenu est obligatoire !</p>

@@ -9,6 +9,7 @@ const limiter = require('../middleware/rate-limit');
 
 router.post('/signup', validateSignup, userCtrl.signUp);
 router.post('/login',limiter , validateLogin, userCtrl.login);
+router.get('/:id', auth, userCtrl.getUser);
 router.delete('/delete', auth , userCtrl.deleteUser);
 
 module.exports = router;

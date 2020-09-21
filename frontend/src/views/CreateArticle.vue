@@ -4,14 +4,14 @@
     <form @submit.prevent="addNewArticle">
       <div>
         <label for="titleArticle">Titre</label>
-        <input type="text" v-model="article.titleArticle" v-validate="'required'" name="titleArticle" id="titleArticle">
+        <input type="text" v-model="article.titleArticle" v-validate="'required'" name="titleArticle" id="titleArticle" placeholder="Titre...">
         <div v-if="errors.has('titleArticle')">
           <p>Le titre de l'article est obligatoire !</p>
         </div>
       </div>
       <div>
         <label for="content">Contenu</label>
-        <input type="text" v-model="article.content" v-validate="'required'" name="content" id="content">
+        <textarea v-model="article.content" v-validate="'required'" name="content" id="content" placeholder="Ecrivez quelque chose à vos collègues !"></textarea>
         <div v-if="errors.has('content')">
           <p>Un contenu est obligatoire !</p>
         </div>
