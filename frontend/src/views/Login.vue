@@ -1,26 +1,32 @@
 <template>
   <div class="login">
     <h1>Connexion</h1>
-    <form @submit.prevent="handleLogin">
-      <div>
-        <label for="email">E-mail : </label>
-        <input type="text" v-model="user.email" v-validate="'required'" name="email" id="email">
-        <div v-if="errors.has('email')">
-          <p>L'adresse élèctronique est requise !</p>
+    <ValidationObserver v-slot="{ handleSubmit }">
+      <form @submit.prevent="handleSubmit(handleLogin)">
+        <ValidationProvider name="E-mail" rules="required|email" v-slot="{ errors }">
+
+            <label for="email">E-mail</label>
+            <input type="email" v-model="user.email" name="email" id="email">
+            <div v-if="errors[0] !== undefined">
+              <p>{{errors[0]}}</p>
+            </div>
+
+        </ValidationProvider>
+        <ValidationProvider name="Mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
+
+            <label for="password">Mot de passe</label>
+            <input type="password" v-model="user.password" name="password" id="password">
+            <div v-if="errors[0] !== undefined">
+              <p>{{errors[0]}}</p>
+            </div>
+
+        </ValidationProvider>
+        <div>
+          <input class="button" type="submit" value="Connexion">
+          <p>{{message}}</p>
         </div>
-      </div>
-      <div>
-        <label for="password">Mot de passe : </label>
-        <input type="password" v-model="user.password" v-validate="'required'" name="password" id="password">
-        <div v-if="errors.has('password')">
-          <p>Le mot de passe est requis !</p>
-        </div>
-      </div>
-      <div>
-        <input type="submit" value="Connexion">
-        <p>{{message}}</p>
-      </div>
-    </form>
+      </form>
+    </ValidationObserver>
   </div>
 </template>
 
@@ -46,33 +52,25 @@ name: "Login",
     }
   },
   methods: {
-    handleLogin() {
-      this.$validator.validateAll()
-          .then( isValid => {
-            if (isValid) {
-              this.$store.dispatch('auth/login', this.user)
-                  .then(res => {
 
-                    if(res.status === 200) {
-                      this.message = res.data.message;
-                      this.$router.push('/home');
-                    } else {
-                      this.message = res;
-                    }
-                  })
-                  .catch(error => {
-                    this.message = error;
-                  })
+    handleLogin() {
+      this.$store.dispatch('auth/login', this.user)
+          .then(res => {
+            if(res.status === 200) {
+              this.message = res.data.message;
+              this.$router.push('/home');
+            } else {
+              this.message = res;
             }
           })
-          .catch( error => {
+          .catch(error => {
             this.message = error;
-          });
+          })
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-
+@import "src/scss/signinAndSignup";
 </style>

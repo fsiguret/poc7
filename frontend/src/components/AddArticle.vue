@@ -12,6 +12,10 @@ name: "AddArticle"
 
 <style lang="scss" scoped>
   .addArticle {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+
     width: 2em;
     height: 2em;
     background-color: #42b983;

@@ -1,48 +1,44 @@
 <template>
   <section>
     <h1>Inscription</h1>
-    <form @submit.prevent="signUp">
-      <div>
-        <label for="firstName">Prénom : </label>
-        <input type="text" v-model="user.firstName" v-validate="'required'" name="firstName" id="firstName">
-        <div
-            v-if="errors.has('firstName')"
-        >
-          <p>Le prénom est requis !</p>
+    <ValidationObserver v-slot="{ handleSubmit }">
+      <form @submit.prevent="handleSubmit(signUp)">
+        <ValidationProvider name="Prénom" rules="required|alpha_dash|min:3|max:60" v-slot="{ errors }">
+            <label for="firstName">Prénom</label>
+            <input type="text" v-model="user.firstName" name="firstName" id="firstName">
+            <div v-if="errors[0] !== undefined">
+              <p>{{ errors[0] }}</p>
+            </div>
+        </ValidationProvider>
+        <ValidationProvider name="Nom" rules="required|alpha_dash|min:3|max:60" v-slot="{ errors }">
+          <label for="lastName">Nom</label>
+          <input type="text" v-model="user.lastName" name="lastName" id="lastName">
+          <div v-if="errors[0] !== undefined">
+            <p>{{ errors[0] }}</p>
+          </div>
+        </ValidationProvider>
+        <ValidationProvider name="E-mail" rules="required|email" v-slot="{ errors }">
+          <label for="email">E-mail</label>
+          <input type="text" v-model="user.email" name="email" id="email">
+          <div v-if="errors[0] !== undefined">
+            <p>{{ errors[0] }}</p>
+          </div>
+        </ValidationProvider>
+        <ValidationProvider name="Mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
+          <label for="password">Mot de passe</label>
+          <input type="password" v-model="user.password" name="password" id="password">
+          <div v-if="errors[0] !== undefined">
+            <p>{{ errors[0] }}</p>
+          </div>
+        </ValidationProvider>
+        <div>
+          <input class="button" type="submit" value="Inscription">
         </div>
-      </div>
-      <div>
-        <label for="lastName">Nom : </label>
-        <input type="text" v-model="user.lastName" v-validate="'required'" name="lastName" id="lastName">
-        <div
-            v-if="errors.has('lastName')"
-        >
-          <p>Le nom est requis !</p>
-        </div>
-      </div>
-      <div>
-        <label for="email">E-mail</label>
-        <input type="text" v-model="user.email" v-validate="'required'" name="email" id="email">
-        <div
-            v-if="errors.has('email')"
-        >
-          <p>L'e-mail est requis !</p>
-        </div>
-      </div>
-      <div>
-        <label for="password">Mot de passe</label>
-        <input type="password" v-model="user.password" v-validate="'required'" name="password" id="password">
-        <div
-            v-if="errors.has('password')"
-        >
-          <p>Le mot de passe est requis !</p>
-        </div>
-      </div>
-      <div>
-        <input type="submit" value="Inscription">
-      </div>
-    </form>
-    <aside>{{ message }}</aside>
+        <p>{{ message }}</p>
+      </form>
+    </ValidationObserver>
+
+
   </section>
 </template>
 
@@ -61,40 +57,38 @@ name: "Signup",
   },
   methods: {
     signUp() {
-      this.$validator.validateAll().then(isValid => {
-        if(isValid) {
-          this.$store.dispatch('auth/register', this.user)
-              .then(res => {
-                if(res.status !== 201) {
-                  this.message = res;
-                  return;
-                }
+      this.message = '';
 
-                this.$store.dispatch('auth/login', this.user)
-                    .then(res => {
-                      if(res.status !== 200) {
-                        this.message = res;
-                        return;
-                      }
-                      this.$router.push('/home');
-                    })
-                    .catch(error => {
-                      return error;
-                    })
-              })
-              .catch(error => {
-                this.message =
-                    (error.response && error.response.data) ||
-                    error.message ||
-                    error.toString();
-              });
-        }
-      })
+      this.$store.dispatch('auth/register', this.user)
+          .then(res => {
+            if (res.status !== 201) {
+              this.message = res;
+              return;
+            }
+
+            this.$store.dispatch('auth/login', this.user)
+                .then(res => {
+                  if (res.status !== 200) {
+                    this.message = res;
+                    return;
+                  }
+                  this.$router.push('/home');
+                })
+                .catch(error => {
+                  return error;
+                })
+          })
+          .catch(error => {
+            this.message =
+                (error.response && error.response.data) ||
+                error.message ||
+                error.toString();
+          });
     }
   }
 }
 </script>
 
-<style scoped>
-
+<style lang="scss" scoped>
+  @import "src/scss/signinAndSignup";
 </style>

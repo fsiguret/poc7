@@ -1,0 +1,50 @@
+@import "variables";
+
+form {
+  width: 20%;
+  margin: auto;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 6px 1px darkgrey;
+  border-radius: 0.1rem;
+
+  span {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin: auto;
+
+
+    label {
+      display: block;
+      text-align: left;
+      width: 100%;
+    }
+
+    input {
+      width: 100%;
+      margin: 1rem 0;
+      padding: 0.5rem;
+      border: solid darkgrey 2px;
+      border-radius: 0.3rem;
+      &:focus {
+        border-color: #a0a0f8;
+      }
+    }
+  }
+  .button {
+    width: 100%;
+    margin: auto;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.2rem;
+    background-color: $elementColor;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.5s;
+
+    &:hover {
+      background-color: $elementColorHover;
+    }
+  }
+}
