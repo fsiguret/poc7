@@ -11,6 +11,8 @@ name: "AddArticle"
 </script>
 
 <style lang="scss" scoped>
+
+@import "src/scss/variables";
   .addArticle {
     position: fixed;
     bottom: 2rem;
@@ -18,8 +20,11 @@ name: "AddArticle"
 
     width: 2em;
     height: 2em;
-    background-color: #42b983;
+    background-color: $elementColor;
     border-radius: 50%;
+    &:hover {
+      background-color: $elementColorHover;
+    }
     svg {
       height: 100%;
       color: white;

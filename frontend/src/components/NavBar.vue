@@ -29,17 +29,26 @@ name: "NavBar",
 
 <style lang="scss" scoped>
 
+@import "src/scss/_variables.scss";
+
 nav {
   padding: 30px;
 
   a {
+    text-decoration: none;
     font-weight: bold;
-    color: #2c3e50;
+    color: white;
+    font-size: 1.5rem;
+
+    padding: 1rem;
 
     &.router-link-exact-active {
-      color: #42b983;
+      color: $elementColor;
+    }
+
+    &:hover {
+      color: $elementColorHover;
     }
   }
 }
-
 </style>
