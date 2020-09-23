@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <header>
+    <header class="header">
       <img src="./assets/icon-left-font-monochrome-white.svg" alt="le logo groupomania en rouge" @click.prevent="goHome">
       <NavBar v-bind:isLogged="isLogged"/>
     </header>
@@ -34,7 +34,7 @@ body {
     color: #2c3e50;
   }
 
-  header {
+  .header {
     background-color: $backgroundColor;
     display: flex;
     justify-content: space-between;

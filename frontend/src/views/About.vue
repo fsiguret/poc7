@@ -1,23 +1,28 @@
 <template>
   <div class="profile">
     <h1>Votre Profil</h1>
-    <section>
+    <section class="infoPerso">
       <h2>Informations personnelles</h2>
-      <ul>
-        <li>Nom : {{user.firstName}}</li>
-        <li>Prénom : {{user.lastName}}</li>
-        <li>Adresse élèctronique : {{user.email}}</li>
+      <ul class="infoPerso-list">
+        <li><span>Nom : </span><span>{{user.firstName}}</span></li>
+        <li><span>Prénom : </span><span>{{user.lastName}}</span></li>
+        <li><span>Adresse élèctronique : </span><span>{{user.email}}</span></li>
       </ul>
 
-      <form @submit.prevent="deleteUser">
-        <label for="password">Mot de passe : </label>
-        <input v-model="password" name="password" id="password" v-validate="'required'" type="password" placeholder="Saisissez votre mot de passe.">
-        <input type="submit" value="Désinscription">
-        <div v-if="errors.has('password')">
-          <p>Veuillez saisir votre mot de passe pour confirmer la suppression de votre compte.</p>
-        </div>
-      </form>
-      <p> {{ message }}</p>
+      <button class="button btn-suppr" v-if="!wantSuppr" @click.prevent="showValidDelete">Suprimer votre compte</button>
+      <ValidationObserver v-if="wantSuppr" v-slot="{ handleSubmit }">
+        <form @submit.prevent="handleSubmit(deleteUser)">
+          <ValidationProvider name="mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
+            <label for="password">Mot de passe</label>
+            <input v-model="password" name="password" id="password" type="password" placeholder="Saisissez votre mot de passe.">
+            <input class="button" type="submit" value="Suprimer votre compte">
+            <div v-if="errors[0] !== undefined">
+              <p>{{errors[0]}}</p>
+            </div>
+          </ValidationProvider>
+          <p>{{ message }}</p>
+        </form>
+      </ValidationObserver>
     </section>
     <section>
       <h2>Derniers articles posté</h2>
@@ -38,7 +43,8 @@ export default {
     return {
       user: '',
       password:'',
-      message: ''
+      message: '',
+      wantSuppr: false
     }
   },
   mounted() {
@@ -66,6 +72,7 @@ export default {
       AuthService.deleteUser(data)
           .then(response => {
             this.message = response.data
+            this.showValidDelete();
             this.$store.dispatch('auth/logout');
             this.$router.push('/');
           })
@@ -75,7 +82,48 @@ export default {
                 error.message ||
                 error.toString();
           });
+    },
+    showValidDelete() {
+      this.wantSuppr = !this.wantSuppr;
     }
   }
 }
 </script>
+<style scoped lang="scss">
+@import "src/scss/button";
+@import "src/scss/form";
+
+.infoPerso {
+  background-color: white;
+  width: 50%;
+  margin: auto;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 6px 1px darkgrey;
+  border-radius: 0.1rem;
+  &-list {
+    list-style: none;
+    text-align: left;
+    li {
+      margin: auto;
+      width: 70%;
+      display: flex;
+      justify-content: center;
+      padding: 1rem;
+      border-bottom: solid darkgrey 1px;
+
+      span {
+        width: 30%;
+      }
+    }
+  }
+  form {
+    margin-top: 2rem;
+    width: 40%;
+  }
+  .btn-suppr {
+    width: 25%;
+  }
+
+}
+
+</style>

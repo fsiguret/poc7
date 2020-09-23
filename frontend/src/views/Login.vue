@@ -4,13 +4,11 @@
     <ValidationObserver v-slot="{ handleSubmit }">
       <form @submit.prevent="handleSubmit(handleLogin)">
         <ValidationProvider name="E-mail" rules="required|email" v-slot="{ errors }">
-
             <label for="email">E-mail</label>
             <input type="email" v-model="user.email" name="email" id="email">
             <div v-if="errors[0] !== undefined">
               <p>{{errors[0]}}</p>
             </div>
-
         </ValidationProvider>
         <ValidationProvider name="Mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
 
@@ -72,5 +70,6 @@ name: "Login",
 </script>
 
 <style lang="scss" scoped>
-@import "src/scss/signinAndSignup";
+@import "../scss/form";
+@import "src/scss/button";
 </style>

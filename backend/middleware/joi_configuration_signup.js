@@ -20,7 +20,15 @@ const middleware = (req, res, next) => {
   });
     const { value, error } = schema.validate(req.body);
     if(error) {
-        res.status(422).send(`${error}`);
+        if (error.details[0].context.key === "firstName") {
+            res.status(422).send("Le prénom ne peut contenir que des caractères alpha-numériques (ex: Paul, Jean-Paul)");
+        } else if (error.details[0].context.key === "lastName") {
+            res.status(422).send("Le nom ne peut contenir que des caractères alpha-numériques (ex: Appert, Pinet)");
+        } else if (error.details[0].context.key === "email") {
+            res.status(422).send("L'adresse électronique doit contenir un @ suivis du nom de domaine groupomania.com (ex: utilisateur@groupomania.com)");
+        } else if (error.details[0].context.key === "password") {
+            res.status(422).send("Les caractères spéciaux et accents sont interdit, minimum 3 caractères et maximum 30.");
+        }
     } else {
         next();
     }

@@ -1,13 +1,17 @@
 <template>
-  <form @submit.prevent="newCommentary(articleId)">
-    <label for="content">Commentaire</label>
-    <textarea v-model="commentary.com" v-validate="'required'" name="content" id="content">Laissez votre commentaire ici !</textarea>
-    <input type="submit" value="Commenter">
-    <div v-if="errors.has('content')">
-      <p>Un contenu est obligatoire !</p>
-    </div>
-    <p v-if="message">{{message}}</p>
-  </form>
+  <ValidationObserver v-slot="{ handleSubmit }">
+    <form @submit.prevent="handleSubmit(newCommentary(articleId))">
+      <ValidationProvider name="commentaire" rules="required|alpha_num" v-slot="{ errors }">
+        <label for="content">Commentaire</label>
+        <textarea v-model="commentary.com" name="content" id="content" placeholder="Laissez un commentaire à vos collègues !"></textarea>
+        <input class="button" type="submit" value="Commenter">
+        <div v-if="errors[0] !== undefined">
+          <p>{{errors[0]}}</p>
+        </div>
+        <p v-if="message">{{message}}</p>
+      </ValidationProvider>
+    </form>
+  </ValidationObserver>
 </template>
 
 <script>
@@ -47,6 +51,22 @@ name: "AddCommentary",
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "src/scss/button";
+@import "src/scss/form";
+
+form {
+  width: 70%;
+  textarea {
+    width: 100%;
+    border: solid darkgrey 2px;
+    border-radius: 0.3rem;
+    resize: vertical;
+    margin: 1rem 0;
+    &:focus {
+      border-color: #a0a0f8;
+    }
+  }
+}
 
 </style>

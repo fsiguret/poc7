@@ -1,23 +1,28 @@
 <template>
-  <div>
-    <button @click="homePage()">Fermer</button>
-    <button v-if="ifSameUserArticle" @click="deleteArticle(article.id)" type="button">Supprimer</button>
-    <button v-if="ifSameUserArticle" type="button">Modifier</button>
-    <article>
+  <div class="detailArticle">
+    <button class="button detailArticle-button" @click="homePage()">Fermer</button>
+
+    <article class="detailArticle--article">
       <h2>{{article.titleArticle}}</h2>
-      <div>
-        <p>{{article.content}}</p>
-        <img v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
+      <div class="detailArticle--article-flex">
+        <div class="detailArticle--content">
+          <p>{{article.content}}</p>
+          <img class="detailArticle--article-flex-img" v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
+        </div>
+        <div>
+          <p>{{article.createAt}}</p>
+          <ul>
+            <li>{{article.likes}}</li>
+            <li>{{article.dislikes}}</li>
+          </ul>
+        </div>
       </div>
-      <div>
-        <p>{{article.createAt}}</p>
-        <ul>
-          <li>{{article.likes}}</li>
-          <li>{{article.dislikes}}</li>
-        </ul>
-      </div>
+      <button class="button detailArticle--article-button" v-if="ifSameUserArticle" @click="deleteArticle(article.id)" type="button">Supprimer</button>
+      <button class="button detailArticle--article-button" v-if="ifSameUserArticle" type="button">Modifier</button>
     </article>
+    <h2>Commentaires</h2>
     <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" @onDelete="getAllComment(this.article.id)"/>
+    <h2>Participez vous aussi !</h2>
     <AddCommentary v-bind:articleId="article.id"/>
   </div>
 </template>
@@ -87,6 +92,40 @@ name: "Article",
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "src/scss/button";
 
+.detailArticle {
+  width: 50%;
+  margin: auto;
+  &-button {
+    width: 20%;
+  }
+
+  &--article {
+    background-color: white;
+    box-shadow: 0 0 6px 1px darkgrey;
+    border-radius: 0.1rem;
+    margin: 1rem auto;
+    &-button {
+      width: 20%;
+      margin: 1rem;
+    }
+    &-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+
+      div {
+        width: 70%;
+      }
+
+      &-img {
+        margin: auto;
+      }
+    }
+
+  }
+}
 </style>

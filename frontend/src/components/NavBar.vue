@@ -35,6 +35,7 @@ nav {
   padding: 30px;
 
   a {
+    outline: none;
     text-decoration: none;
     font-weight: bold;
     color: white;

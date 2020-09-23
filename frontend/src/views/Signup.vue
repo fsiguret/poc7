@@ -90,5 +90,6 @@ name: "Signup",
 </script>
 
 <style lang="scss" scoped>
-  @import "src/scss/signinAndSignup";
+  @import "../scss/form";
+  @import "src/scss/button";
 </style>

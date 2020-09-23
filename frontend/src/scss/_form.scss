@@ -32,20 +32,4 @@ form {
       }
     }
   }
-  .button {
-    width: 100%;
-    margin: auto;
-    padding: 1rem;
-    border: none;
-    border-radius: 0.2rem;
-    background-color: $elementColor;
-    color: white;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.5s;
-
-    &:hover {
-      background-color: $elementColorHover;
-    }
-  }
 }

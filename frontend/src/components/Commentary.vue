@@ -1,14 +1,15 @@
 <template>
-  <article>
-    <div>
-      <p>{{com.com}}</p>
-      <p>{{com.createAt}}</p>
-      <button v-if="ifSameUserCom" v-on:click="deleteCommentary(com.id)">Supprimer</button>
-      <button v-if="ifSameUserCom">Modifier</button>
-      <p v-if="message">{{message}}</p>
-    </div>
-
-  </article>
+  <div class="commentary">
+    <article class="commentary-article">
+      <header>
+        <p>{{com.createAt}}</p>
+      </header>
+      <p class="commentary-content">{{com.com}}</p>
+    </article>
+    <button class="button commentary-button" v-if="ifSameUserCom" v-on:click="deleteCommentary(com.id)">Supprimer</button>
+    <button class="button commentary-button" v-if="ifSameUserCom">Modifier</button>
+    <p v-if="message">{{message}}</p>
+  </div>
 </template>
 
 <script>
@@ -52,6 +53,34 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+@import "src/scss/button";
 
+.commentary {
+  background-color: white;
+  box-shadow: 0 0 6px 1px darkgrey;
+  border-radius: 0.1rem;
+  margin: 1rem auto;
+  width: 70%;
+
+  &-article header {
+    text-align: left;
+    p {
+      padding: 1rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  &-content {
+    text-align: left;
+    margin-left: 4rem;
+
+    padding: 2rem;
+  }
+
+  &-button {
+    width: 20%;
+    margin: 1rem;
+  }
+}
 </style>

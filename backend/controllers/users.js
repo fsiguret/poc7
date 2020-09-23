@@ -45,7 +45,7 @@ exports.login = (req, res, next ) => {
                                 message: "Connection réussie !"
                             });
                         }else {
-                            res.status(400).send("mot de passe érroné.");
+                            res.status(400).send("Identifiant ou mot de passe incorrect.");
                         }
                     })
                     .catch(() => {
@@ -90,7 +90,7 @@ exports.deleteUser = (req, res, next ) => {
                             }
                         });
                     }else {
-                        res.status(400).send("mot de passe érroné.");
+                        res.status(400).send("Identifiant ou mot de passe incorrect.");
                     }
                 })
                 .catch(() => {
