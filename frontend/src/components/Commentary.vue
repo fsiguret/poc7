@@ -7,13 +7,14 @@
       <p class="commentary-content">{{com.com}}</p>
     </article>
     <button class="button commentary-button" v-if="ifSameUserCom" v-on:click="deleteCommentary(com.id)">Supprimer</button>
-    <button class="button commentary-button" v-if="ifSameUserCom">Modifier</button>
+    <router-link class="button commentary-button" v-if="ifSameUserCom" to="/editCom">Modifier</router-link>
     <p v-if="message">{{message}}</p>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/user-service";
+
 
 export default {
   name: "Commentary",
@@ -45,7 +46,6 @@ export default {
             this.message = error.response.data;
           });
     },
-
     refreshCommentary() {
       this.$emit('onDelete');
     }
@@ -62,6 +62,7 @@ export default {
   border-radius: 0.1rem;
   margin: 1rem auto;
   width: 70%;
+  text-align: center;
 
   &-article header {
     text-align: left;

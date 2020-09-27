@@ -6,10 +6,11 @@ import { ValidationObserver, ValidationProvider, extend, localize } from 'vee-va
 import fr from 'vee-validate/dist/locale/fr.json';
 import * as rules from 'vee-validate/dist/rules';
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faPlus } from '@fortawesome/free-solid-svg-icons'
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import App from './App.vue'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faPlus, faThumbsUp, faThumbsDown, faComments} from '@fortawesome/free-solid-svg-icons';
+
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import App from './App.vue';
 
 
 Object.keys(rules).forEach(rule => {
@@ -18,7 +19,7 @@ Object.keys(rules).forEach(rule => {
 
 localize('fr', fr);
 
-library.add(faPlus);
+library.add(faPlus, faThumbsUp, faThumbsDown, faComments);
 
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 Vue.component('ValidationObserver', ValidationObserver);

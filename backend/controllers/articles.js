@@ -146,20 +146,33 @@ exports.changeArticle = (req, res, next) => {
             if (error) {
               res.status(500).send("Une erreur est survenue : " + error);
             } else {
-              const filename = resultsSelect[0].imageUrl.split('/images/')[1];
-              fs.unlink(`images/${filename}`, () => {
+              let ifFile = resultsSelect[0].imageUrl === null;
 
-                //QUERY UPDATE
+              if(!ifFile) {
+                const filename = resultsSelect[0].imageUrl.split('/images/')[1];
+                fs.unlink(`images/${filename}`, () => {
+
+                  //QUERY UPDATE
+                  connection.query(sqlFile, valuesFile, (error, results, fields) => {
+                    if (error) {
+                      fs.unlink(`images/${req.file.filename}`, () => {
+                      });
+                      res.status(500).send("Une erreur est survenue lors de la mise à jour de l'article." + error);
+                    } else {
+                      res.status(200).send("L'article à été modifié.");
+                    }
+                  });
+                });
+              } else {
                 connection.query(sqlFile, valuesFile, (error, results, fields) => {
                   if (error) {
-                    fs.unlink(`images/${req.file.filename}`, () => {
-                    });
                     res.status(500).send("Une erreur est survenue lors de la mise à jour de l'article." + error);
                   } else {
                     res.status(200).send("L'article à été modifié.");
                   }
                 });
-              });
+              }
+
             }
           });
         }

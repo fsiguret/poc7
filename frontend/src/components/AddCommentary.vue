@@ -1,7 +1,7 @@
 <template>
   <ValidationObserver v-slot="{ handleSubmit }">
     <form @submit.prevent="handleSubmit(newCommentary(articleId))">
-      <ValidationProvider name="commentaire" rules="required|alpha_num" v-slot="{ errors }">
+      <ValidationProvider name="commentaire" rules="required|alpha_spaces" v-slot="{ errors }">
         <label for="content">Commentaire</label>
         <textarea v-model="commentary.com" name="content" id="content" placeholder="Laissez un commentaire à vos collègues !"></textarea>
         <input class="button" type="submit" value="Commenter">

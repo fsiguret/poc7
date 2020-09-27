@@ -15,8 +15,8 @@ name: "AddArticle"
 @import "src/scss/variables";
   .addArticle {
     position: fixed;
-    bottom: 2rem;
-    right: 2rem;
+    bottom: 5rem;
+    right: 5rem;
 
     width: 2em;
     height: 2em;
@@ -30,5 +30,4 @@ name: "AddArticle"
       color: white;
     }
   }
-
 </style>

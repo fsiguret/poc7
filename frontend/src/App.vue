@@ -7,7 +7,7 @@
     <main>
       <router-view/>
     </main>
-    <footer>
+    <footer class="footer">
       <p>Copyright</p>
     </footer>
   </div>
@@ -16,7 +16,9 @@
 <style lang="scss">
 @import "scss/variables";
 
-
+html, body, #app {
+  height: 100%;
+}
 body {
   margin: 0;
   padding: 0;
@@ -32,6 +34,10 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
   }
 
   .header {
@@ -48,6 +54,15 @@ body {
       &:hover {
         filter: invert(47%) sepia(64%) saturate(1143%) hue-rotate(319deg) brightness(111%) contrast(93%);
       }
+    }
+  }
+  .footer {
+    margin-top: 1rem;
+    background-color: $backgroundColor;
+    p {
+
+      padding: 2rem;
+      color: white;
     }
   }
 }

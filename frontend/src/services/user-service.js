@@ -35,11 +35,21 @@ class UserService {
     }
 
     putLikeOrDislike(id, data) {
-        return axios.put(API_URL + id + "/like", { headers : authHeader(), body: data });
+        return axios({
+            method: 'PUT',
+            url: API_URL + id + "/like",
+            headers: authHeader(),
+            data: data
+        });
     }
 
     putArticle(id, data) {
-        return axios.put(API_URL + id, { headers : authHeader(), body: data });
+        return axios({
+            method: 'PUT',
+            url: API_URL + id,
+            headers : authHeader(),
+            data: data
+        })
     }
 
     deleteArticle(id, user) {

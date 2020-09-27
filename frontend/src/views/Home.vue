@@ -1,7 +1,7 @@
 <template>
   <section v-if="!showDetail" class="home">
     <h1>Derniers Articles</h1>
-    <ListArticle v-for="article in articles" :key="article.id" v-bind:article="article" v-on:click.native="detailArticle(article.id)"/>
+    <ListArticle v-for="article in articles" :key="article.id" v-bind:article="article" @showingDetail="detailArticle(article.id)"/>
     <AddArticle/>
   </section>
   <section v-else-if="showDetail">

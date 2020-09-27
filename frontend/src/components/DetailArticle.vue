@@ -11,14 +11,11 @@
         </div>
         <div>
           <p>{{article.createAt}}</p>
-          <ul>
-            <li>{{article.likes}}</li>
-            <li>{{article.dislikes}}</li>
-          </ul>
+          <LikeAndDislike v-bind:article="article"/>
         </div>
       </div>
       <button class="button detailArticle--article-button" v-if="ifSameUserArticle" @click="deleteArticle(article.id)" type="button">Supprimer</button>
-      <button class="button detailArticle--article-button" v-if="ifSameUserArticle" type="button">Modifier</button>
+      <router-link class="button detailArticle--article-button" v-if="ifSameUserArticle" type="button" :to="{ name: 'EditArticle', params: { id: article.id}}">Modifier</router-link>
     </article>
     <h2>Commentaires</h2>
     <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" @onDelete="getAllComment(this.article.id)"/>
@@ -28,12 +25,12 @@
 </template>
 
 <script>
-
 import UserService from "@/services/user-service";
 import moment from "moment";
 import Comment from "@/models/Commentary";
 import Commentary from "@/components/Commentary";
 import AddCommentary from "@/components/AddCommentary";
+import LikeAndDislike from "@/components/LikeAndDislike";
 
 export default {
 name: "Article",
@@ -42,7 +39,8 @@ name: "Article",
   ],
   components: {
     Commentary,
-    AddCommentary
+    AddCommentary,
+    LikeAndDislike
   },
   data() {
     return {
@@ -71,7 +69,10 @@ name: "Article",
             this.$router.push('/');
           })
           .catch(error => {
-            this.message = error.response.data;
+            this.message =
+                (error.response && error.response.data) ||
+                error.message ||
+                error.toString();
           });
     },
     getAllComment(id) {
@@ -85,7 +86,10 @@ name: "Article",
             });
           })
           .catch(error => {
-            this.message = error.response.data;
+            this.message =
+                (error.response && error.response.data) ||
+                error.message ||
+                error.toString();
           });
     }
   }
@@ -110,6 +114,7 @@ name: "Article",
     &-button {
       width: 20%;
       margin: 1rem;
+
     }
     &-flex {
       display: flex;
@@ -123,6 +128,8 @@ name: "Article",
 
       &-img {
         margin: auto;
+        width: 50%;
+
       }
     }
 

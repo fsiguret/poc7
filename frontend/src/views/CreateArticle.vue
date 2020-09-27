@@ -3,14 +3,14 @@
     <h1>Créez votre article !</h1>
     <ValidationObserver v-slot="{ handleSubmit }">
       <form @submit.prevent="handleSubmit(addNewArticle)">
-        <ValidationProvider name="titre" rules="required|alpha_num" v-slot="{ errors }">
+        <ValidationProvider name="titre" rules="required|alpha_spaces" v-slot="{ errors }">
           <label for="titleArticle">Titre</label>
           <input type="text" v-model="article.titleArticle" name="titleArticle" id="titleArticle" placeholder="Titre...">
           <div v-if="errors[0] !== undefined">
             <p>{{errors[0]}}</p>
           </div>
         </ValidationProvider>
-        <ValidationProvider name="contenu" rules="required|alpha_num" v-slot="{ errors }">
+        <ValidationProvider name="contenu" rules="required|alpha_spaces" v-slot="{ errors }">
           <label for="content">Contenu</label>
           <textarea v-model="article.content" name="content" id="content" placeholder="Ecrivez quelque chose à vos collègues !"></textarea>
           <div v-if="errors[0] !== undefined">
