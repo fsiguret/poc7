@@ -1,8 +1,8 @@
 <template>
   <ul>
-    <li><font-awesome-icon @click.prevent="like" icon="thumbs-up" class="button button-like"/><span>{{article.likes}}</span></li>
-    <li><font-awesome-icon @click.prevent="dislike" icon="thumbs-down" class="button button-dislike"/><span>{{article.dislikes}}</span></li>
-    <li>{{message}}</li>
+    <li><font-awesome-icon @click.prevent="like" icon="thumbs-up" class="button button-like"/><span>{{displayValue(article.likes)}}</span></li>
+    <li><font-awesome-icon @click.prevent="dislike" icon="thumbs-down" class="button button-dislike"/><span>{{displayValue(article.dislikes)}}</span></li>
+    <li v-if="message !== null">{{message}}</li>
   </ul>
 </template>
 
@@ -22,6 +22,9 @@ name: "LikeAndDislike",
    };
   },
   methods: {
+    displayValue(value) {
+      return value;
+    },
     like() {
       const likeBtn = document.getElementsByClassName("button-like");
       let likeBtnClasses = likeBtn[0].classList;
@@ -35,6 +38,7 @@ name: "LikeAndDislike",
         UserService.putLikeOrDislike(this.article.id, this.vote)
             .then(response => {
               this.message = response.data;
+              this.displayValue(this.article.likes++);
             })
             .catch(error => {
               this.message =
@@ -50,6 +54,7 @@ name: "LikeAndDislike",
 
         UserService.putLikeOrDislike(this.article.id, this.vote)
             .then(response => {
+              this.displayValue(this.article.likes--);
               this.message = response.data;
             })
             .catch(error => {
@@ -73,6 +78,7 @@ name: "LikeAndDislike",
         UserService.putLikeOrDislike(this.article.id, this.vote)
             .then(response => {
               this.message = response.data;
+              this.displayValue(this.article.dislikes++);
             })
             .catch(error => {
               this.message =
@@ -88,6 +94,7 @@ name: "LikeAndDislike",
         UserService.putLikeOrDislike(this.article.id, this.vote)
             .then(response => {
               this.message = response.data;
+              this.displayValue(this.article.dislikes--);
             })
             .catch(error => {
               this.message =
