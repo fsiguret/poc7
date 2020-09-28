@@ -2,22 +2,26 @@
   <div class="commentary">
     <article class="commentary-article">
       <header>
-        <p>{{com.createAt}}</p>
+        <DisplayHours v-bind:createAt="com.createAt"/>
       </header>
       <p class="commentary-content">{{com.com}}</p>
     </article>
     <button class="button commentary-button" v-if="ifSameUserCom" v-on:click="deleteCommentary(com.id)">Supprimer</button>
-    <router-link class="button commentary-button" v-if="ifSameUserCom" to="/editCom">Modifier</router-link>
+    <router-link class="button commentary-button" v-if="ifSameUserCom" :to="{ name: 'EditCom', params: {id: com.id}}">Modifier</router-link>
     <p v-if="message">{{message}}</p>
   </div>
 </template>
 
 <script>
 import UserService from "@/services/user-service";
+import DisplayHours from "@/components/DisplayHours";
 
 
 export default {
   name: "Commentary",
+  components: {
+    DisplayHours
+  },
   props: [
     "com"
   ],
@@ -43,7 +47,10 @@ export default {
             this.refreshCommentary();
           })
           .catch(error => {
-            this.message = error.response.data;
+            this.message =
+                (error.response && error.response.data) ||
+                error.message ||
+                error.toString();
           });
     },
     refreshCommentary() {

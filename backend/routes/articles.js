@@ -7,10 +7,12 @@ const multer = require('../middleware/multer-configuration');
 router.get('/', auth, articlesCtrl.getAllArticles);
 router.get('/:id', auth, articlesCtrl.getOneArticle);
 router.get('/:id/comment', auth, articlesCtrl.getCommentByArticle);
+router.get('/comment/:id', auth, articlesCtrl.getOneComment);
 router.post('/', multer, auth, articlesCtrl.addArticle);
 router.post('/:id/comment',auth, articlesCtrl.commentArticle);
 router.put('/:id/like', auth, articlesCtrl.likeOrDislike);
 router.put('/:id',  multer, auth, articlesCtrl.changeArticle);
+router.put('/comment/:id', auth, articlesCtrl.editCommentary);
 router.delete('/:id', auth, articlesCtrl.deleteOneArticle);
 router.delete('/:id/delcom', auth, articlesCtrl.deleteComment);
 

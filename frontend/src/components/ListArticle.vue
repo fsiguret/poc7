@@ -3,7 +3,7 @@
     <article class="list-article" @click.prevent="showingDetails">
       <header class="headerListArticle">
         <h2 class="titleArticle">{{article.titleArticle}}</h2>
-        <p class="createAt">{{article.createAt}}</p>
+        <DisplayHours v-bind:create-at="article.createAt"/>
       </header>
       <div class="content">
         <p class="content-article">{{article.content}}</p>
@@ -19,10 +19,12 @@
 
 <script>
 import ListCommentary from "@/components/ListCommentary";
+import DisplayHours from "@/components/DisplayHours";
 export default {
 name: "ListArticle",
   components: {
-  ListCommentary
+    ListCommentary,
+    DisplayHours
   },
   props: [
       "article"
@@ -59,9 +61,6 @@ name: "ListArticle",
       .titleArticle {
         margin-right: 1rem;
         font-size: 1.5rem;
-      }
-      .createAt {
-        font-size: 0.8rem;
       }
     }
     .content {

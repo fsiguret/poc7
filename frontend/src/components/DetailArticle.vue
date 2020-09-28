@@ -10,7 +10,7 @@
           <img class="detailArticle--article-flex-img" v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
         </div>
         <div>
-          <p>{{article.createAt}}</p>
+          <DisplayHours v-bind:createAt="article.createAt"/>
           <LikeAndDislike v-bind:article="article"/>
         </div>
       </div>
@@ -26,11 +26,11 @@
 
 <script>
 import UserService from "@/services/user-service";
-import moment from "moment";
 import Comment from "@/models/Commentary";
 import Commentary from "@/components/Commentary";
 import AddCommentary from "@/components/AddCommentary";
 import LikeAndDislike from "@/components/LikeAndDislike";
+import DisplayHours from "@/components/DisplayHours";
 
 export default {
 name: "Article",
@@ -38,6 +38,7 @@ name: "Article",
       "article"
   ],
   components: {
+    DisplayHours,
     Commentary,
     AddCommentary,
     LikeAndDislike
@@ -79,8 +80,6 @@ name: "Article",
       UserService.getComment(id)
           .then(response => {
             response.data.resultsSelect.forEach(comment => {
-
-              comment.createAt = moment(String(comment.createAt)).fromNow();
               this.message = '';
               this.commentary.push(new Comment(comment.id, comment.userId, comment.articleId, comment.createAt, comment.com));
             });

@@ -368,6 +368,55 @@ exports.getCommentByArticle = (req, res, next) => {
   });
 };
 
+exports.getOneComment = (req, res, next) => {
+  let sqlSelect = `SELECT * FROM Commentary WHERE id = ?`;
+  let valueSelect = [req.params.id];
+
+  connection.query(sqlSelect, valueSelect, (error, results, fields) => {
+    if (error) {
+      res.status(500).send("Une erreur est survenue lors de la jointure entre les tables Articles et Commentary. " + error);
+    } else if(results[0] === null) {
+      res.status(404).send("Il n'y a pas de commentaires.");
+    } else {
+      res.status(200).json({ results });
+    }
+  });
+};
+
+exports.editCommentary = (req, res, next) => {
+  let updateCommentary = '';
+  let value = [];
+
+  let sqlRank = `SELECT rank FROM Users WHERE userId = ` + mysql.escape(req.body.userId);
+
+  connection.query(sqlRank, (error, results, fields) => {
+    if (error) {
+      res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur.");
+    } else if (results[0] === null) {
+      res.status(404).send("L'utilisateur n'éxiste pas.");
+    } else {
+        if(results[0].rank === 4) {
+          updateCommentary = `UPDATE Commentary SET createAt = NOW(), com = ? WHERE id = ?`;
+          value = [req.body.com, req.params.id, req.params.id];
+        } else {
+          updateCommentary =`UPDATE Commentary SET createAt = NOW(), com = ? WHERE id = ? AND userId = ?`;
+          value = [req.body.com, req.params.id, req.params.id, req.body.userId];
+        }
+      connection.query(updateCommentary, value, (errorCom, resultsCom, fields) => {
+        if(errorCom) {
+          res.status(500).send("Une erreur est survenue lors de la mise à jour du commentaire." + errorCom);
+        } else if(resultsCom.rowsAffected === 0) {
+          res.status(404).send("Le commentaire ou l'utilisateur n'éxiste pas.");
+        } else {
+          res.status(200).send("Le commentaire à bien été modifié.");
+        }
+      });
+    }
+  });
+
+
+};
+
 exports.deleteComment = (req, res, next) => {
 
   let sqlIfExists = `SELECT EXISTS (SELECT id FROM Commentary  WHERE id = ?) AS isTrue`;

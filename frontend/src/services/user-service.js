@@ -16,12 +16,16 @@ class UserService {
         return axios.get(API_URL + id + "/comment", { headers : authHeader() });
     }
 
+    getOneComment(id) {
+        return axios.get(API_URL + "comment/" + id, {headers: authHeader() });
+    }
+
     postArticle(data) {
         return axios({
-           method: "POST",
-           url: API_URL,
-           headers: authHeader(),
-           data: data
+            method: "POST",
+            url: API_URL,
+            headers: authHeader(),
+            data: data
         });
     }
 
@@ -49,15 +53,24 @@ class UserService {
             url: API_URL + id,
             headers : authHeader(),
             data: data
-        })
+        });
+    }
+
+    putCommentary(id, data) {
+        return axios({
+           method: 'PUT',
+           url: API_URL + "comment/" + id,
+           headers: authHeader(),
+           data: data
+        });
     }
 
     deleteArticle(id, user) {
         return axios({
-           method: 'DELETE',
-           url: API_URL + id,
-           headers: authHeader(),
-           data: { userId: user}
+            method: 'DELETE',
+            url: API_URL + id,
+            headers: authHeader(),
+            data: { userId: user}
         });
     }
 

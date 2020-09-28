@@ -44,6 +44,7 @@ body {
     background-color: $backgroundColor;
     display: flex;
     justify-content: space-between;
+    padding: 1rem;
 
     img {
       cursor: pointer;
