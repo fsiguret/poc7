@@ -21,7 +21,7 @@
     <div v-if="commentary.length === 0">
       <p>Il n'y a pas de commentaires pour le moment !</p>
     </div>
-    <Commentary v-else v-for="com in commentary" :key="com.id" v-bind:com="com" @onDelete="getAllComment(this.article.id)"/>
+    <Commentary v-else v-for="com in commentary" :key="com.id" v-bind:com="com" v-bind:userRank="userRank" @onDelete="getAllComment(this.article.id)"/>
     <h2>Participez vous aussi !</h2>
     <AddCommentary v-bind:articleId="article.id"/>
   </div>

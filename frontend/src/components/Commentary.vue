@@ -26,7 +26,8 @@ export default {
     DisplayHours
   },
   props: [
-    "com"
+    "com",
+    "userRank"
   ],
   data() {
     return {
@@ -39,17 +40,7 @@ export default {
   created() {
     let user = JSON.parse(localStorage.getItem('user'));
 
-    AuthService.getUser(user.userId)
-        .then(response => {
-          this.userRank = response.data.results[0].rank;
-          this.ifAdmin = this.userRank === 4;
-        })
-        .catch(error => {
-          this.message =
-              (error.response && error.response.data) ||
-              error.message ||
-              error.toString();
-        });
+    this.ifAdmin = this.userRank === 4;
 
     this.ifSameUserCom = user.userId === this.com.userId;
   },
