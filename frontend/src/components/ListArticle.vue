@@ -53,11 +53,17 @@ name: "ListArticle",
   width: 50%;
   box-shadow: 0 0 6px 1px darkgrey;
 
+  @media screen and (max-width: 660px){
+    width: 80%;
+  }
+
   &-article {
+
     .headerListArticle {
       display: flex;
       align-items: center;
       border-bottom: 1px solid darkgrey;
+
       .titleArticle {
         margin-right: 1rem;
         font-size: 1.5rem;
@@ -65,10 +71,11 @@ name: "ListArticle",
         max-width: 80%;
       }
     }
-    .content {
 
+    .content {
       border-bottom: 1px solid darkgrey;
       padding: 0.5rem;
+
       &-img {
         width: 30%;
       }
@@ -78,18 +85,14 @@ name: "ListArticle",
   &-comment {
     padding: 1rem;
     text-align: left;
+
     svg {
       cursor: pointer;
+
       &:hover {
         transform: scale(1.1);
       }
     }
-  }
-}
-
-@media screen and (max-width: 660px){
-  .list {
-    width: 80%;
   }
 }
 </style>

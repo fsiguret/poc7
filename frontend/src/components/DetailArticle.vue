@@ -14,8 +14,10 @@
           <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike"/>
         </div>
       </div>
-      <button class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" @click="deleteArticle(article.id)" type="button">Supprimer</button>
-      <router-link class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" type="button" :to="{ name: 'EditArticle', params: { id: article.id}}">Modifier</router-link>
+      <div>
+        <button class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" @click="deleteArticle(article.id)" type="button">Supprimer</button>
+        <router-link class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" type="button" :to="{ name: 'EditArticle', params: { id: article.id}}">Modifier</router-link>
+      </div>
     </article>
     <h2>Commentaires</h2>
     <div v-if="commentary.length === 0">
@@ -116,12 +118,19 @@ name: "Article",
 
 <style lang="scss" scoped>
 @import "src/scss/button";
-
 .detailArticle {
   width: 50%;
   margin: auto;
+
+  @media screen and (max-width: 1040px){
+    width: 80%;
+  }
   &-button {
     width: 20%;
+
+    @media screen and (max-width: 400px) {
+      width: 30%;
+    }
   }
 
   &--article {
@@ -129,11 +138,23 @@ name: "Article",
     box-shadow: 0 0 6px 1px darkgrey;
     border-radius: 0.1rem;
     margin: 1rem auto;
+
+    div {
+      @media screen and (max-width: 1000px){
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+      }
+    }
+
     &-button {
       width: 20%;
       margin: 1rem;
-
+      @media screen and (max-width: 620px) {
+        width: 50%;
+      }
     }
+
     &-flex {
       display: flex;
       align-items: center;

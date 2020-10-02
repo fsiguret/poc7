@@ -94,13 +94,13 @@ name: "CreateArticle",
 <style lang="scss" scoped>
 @import "src/scss/button";
 @import "src/scss/form";
-
 textarea {
   width: 100%;
   border: solid darkgrey 2px;
   border-radius: 0.3rem;
   resize: vertical;
   margin: 1rem 0;
+
   &:focus {
     border-color: #a0a0f8;
   }

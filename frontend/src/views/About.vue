@@ -87,7 +87,6 @@ export default {
 <style scoped lang="scss">
 @import "src/scss/button";
 @import "src/scss/form";
-
 .infoPerso {
   background-color: white;
   width: 50%;
@@ -95,9 +94,29 @@ export default {
   padding: 2rem 3rem;
   box-shadow: 0 0 6px 1px darkgrey;
   border-radius: 0.1rem;
+
+  @media screen and (max-width: 1750px){
+    width: 60%;
+  }
+  @media screen and (max-width: 1460px){
+    width: 70%;
+  }
+  @media screen and (max-width: 1250px){
+    width: 80%;
+  }
+  @media screen and (max-width: 1100px) {
+    width: 90%;
+    padding: 1rem;
+  }
+
   &-list {
     list-style: none;
     text-align: left;
+
+    @media screen and (max-width: 1100px){
+      padding: 0.2rem;
+    }
+
     li {
       margin: auto;
       width: 70%;
@@ -106,83 +125,41 @@ export default {
       padding: 1rem;
       border-bottom: solid darkgrey 1px;
 
-      span {
-        width: 30%;
-      }
-    }
-  }
-  form {
-    margin-top: 2rem;
-    width: 40%;
-  }
-  .btn-suppr {
-    width: 25%;
-  }
-
-}
-
-@media screen and (max-width: 1750px){
-  .infoPerso {
-    width: 60%;
-  }
-}
-@media screen and (max-width: 1460px){
-  .infoPerso {
-    width: 70%;
-  }
-}
-@media screen and (max-width: 1250px){
-  .infoPerso {
-    width: 80%;
-  }
-}
-
-@media screen and (max-width: 1100px){
-  .infoPerso {
-    &-list {
-      li {
-        width: 80%;
-      }
-    }
-  }
-}
-@media screen and (max-width: 1100px){
-  .infoPerso {
-    &-list {
-      li {
+      @media screen and (max-width: 1100px){
         width: 90%;
         flex-direction: column;
         align-items: center;
-      }
-    }
-  }
-}
-
-@media screen and (max-width: 1100px){
-  .infoPerso {
-    width: 90%;
-    padding: 0;
-    &-list {
-      padding: 0.2rem;
-      li {
         text-align: center;
-        span {
+      }
+
+      span {
+        width: 30%;
+
+        @media screen and (max-width: 1100px){
           width: 100%;
         }
       }
     }
-    .button {
-      width: 50%;
-    }
-    form {
-
-      .supprAccount {
-        width: 100%;
-      }
-    }
-
   }
 
-}
+  form {
+    margin-top: 2rem;
+    width: 40%;
+  }
 
+  .button {
+
+    @media screen and (max-width: 1100px){
+      width: 50%;
+    }
+  }
+
+  .btn-suppr {
+    width: 25%;
+
+    @media screen and (max-width: 1100px){
+      width: 50%;
+    }
+  }
+}
 </style>

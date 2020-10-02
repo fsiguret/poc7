@@ -130,8 +130,16 @@ name: "LikeAndDislike",
 <style lang="scss" scoped>
 ul {
   list-style: none;
+
+  @media screen and (max-width: 1000px){
+    display: flex;
+    justify-content: center;
+    padding: 0;
+  }
+
   li {
     margin: 0.5rem;
+
     .button {
       margin-right: 1rem;
       cursor: pointer;
@@ -139,12 +147,13 @@ ul {
       &:hover {
         transform: scale(1.1);
       }
+
       &-like {
         &-active {
           color: blue;
         }
-
       }
+
       &-dislike {
         &-active {
           color: red;

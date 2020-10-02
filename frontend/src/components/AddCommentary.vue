@@ -55,7 +55,6 @@ name: "AddCommentary",
 <style lang="scss" scoped>
 @import "src/scss/button";
 @import "src/scss/form";
-
 form {
   width: 70%;
   textarea {
@@ -69,5 +68,4 @@ form {
     }
   }
 }
-
 </style>

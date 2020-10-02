@@ -116,6 +116,7 @@ textarea {
   border-radius: 0.3rem;
   resize: vertical;
   margin: 1rem 0;
+
   &:focus {
     border-color: #a0a0f8;
   }

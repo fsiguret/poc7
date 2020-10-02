@@ -37,10 +37,9 @@ name: "NavBar",
 </script>
 
 <style lang="scss" scoped>
-
 @import "src/scss/_variables.scss";
-
 div {
+
   .burger {
     color: white;
     font-size: 3rem;
@@ -50,6 +49,7 @@ div {
       color: $elementColorHover;
     }
   }
+
   #nav {
     position: fixed;
     top: 0;
@@ -62,6 +62,7 @@ div {
       right: -100%;
       transition: right 1s;
     }
+
     &:target {
       right: 0;
       transition: right 0.5s;
@@ -85,6 +86,7 @@ div {
           color: $elementColorHover;
         }
       }
+
       .close {
         display: inline;
         text-align: left;
@@ -92,12 +94,12 @@ div {
         svg {
           font-size: 2rem;
           padding: 1rem;
-
         }
       }
 
       div {
         font-size: 2rem;
+
         a {
           padding: 2rem 0 2rem 0;
         }
@@ -112,9 +114,5 @@ div {
       }
     }
   }
-
-
-
-
 }
 </style>
