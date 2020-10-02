@@ -46,7 +46,6 @@ export default {
 
     AuthService.getUser(user.userId)
         .then(response => {
-          console.log(response)
           this.user = new User(response.data.results[0].userId, response.data.results[0].firstName, response.data.results[0].lastName , response.data.results[0].email, '', response.data.results[0].rank)
         })
         .catch(error => {
