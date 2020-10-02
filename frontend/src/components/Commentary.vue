@@ -17,7 +17,6 @@
 import UserService from "@/services/user-service";
 import DisplayHours from "@/components/DisplayHours";
 import EditCommentary from "@/components/EditCommentary";
-import AuthService from "@/services/auth-service";
 
 export default {
   name: "Commentary",
