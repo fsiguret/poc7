@@ -1,15 +1,15 @@
 <template>
   <ValidationObserver v-slot="{ handleSubmit }">
-    <form @submit.prevent="handleSubmit(newCommentary(articleId))">
-      <ValidationProvider name="commentaire" rules="required|alpha_spaces" v-slot="{ errors }">
+    <form @submit.prevent="handleSubmit(newCommentary)">
+      <ValidationProvider name="commentaire" rules="required" v-slot="{ errors }">
         <label for="content">Commentaire</label>
         <textarea v-model="commentary.com" name="content" id="content" placeholder="Laissez un commentaire à vos collègues !"></textarea>
-        <input class="button" type="submit" value="Commenter">
         <div v-if="errors[0] !== undefined">
           <p>{{errors[0]}}</p>
         </div>
-        <p v-if="message">{{message}}</p>
       </ValidationProvider>
+      <input class="button" type="submit" value="Commenter">
+      <p v-if="message">{{message}}</p>
     </form>
   </ValidationObserver>
 </template>
@@ -30,15 +30,16 @@ name: "AddCommentary",
     };
   },
   methods: {
-    newCommentary(id) {
+    newCommentary() {
       let user = JSON.parse(localStorage.getItem('user'));
 
       this.commentary.userId = user.userId;
-      this.commentary.articleId = id;
+      this.commentary.articleId = this.articleId;
 
-      UserService.postComment(id, this.commentary)
+      UserService.postComment(this.articleId, this.commentary)
           .then(response => {
             this.message = response.data;
+            this.$router.push('/');
           })
           .catch(error => {
             this.message =

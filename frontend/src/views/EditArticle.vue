@@ -10,7 +10,7 @@
               <p>{{errors[0]}}</p>
             </div>
           </ValidationProvider>
-          <ValidationProvider name="contenu" rules="required|alpha_spaces" v-slot="{ errors }">
+          <ValidationProvider name="contenu" rules="required" v-slot="{ errors }">
             <label for="content">Contenu</label>
             <textarea  name="content" id="content" placeholder="Ecrivez quelque chose à vos collègues !" v-model.lazy:value="article.content"></textarea>
             <div v-if="errors[0] !== undefined">

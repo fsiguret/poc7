@@ -4,6 +4,7 @@ const fs = require('fs');
 
 exports.getAllArticles = (req, res, next) => {
 
+  // let sql = `SELECT * FROM Articles`;
   let sql = `SELECT * FROM Articles`;
 
   //QUERY SELECT
@@ -56,7 +57,7 @@ exports.addArticle = (req, res, next) => {
 
 exports.getOneArticle = (req, res, next) => {
   //request SQL
-  let sql = `SELECT * FROM Articles WHERE id = ` + mysql.escape(req.params.id);
+  let sql = `SELECT * FROM Articles LEFT JOIN UserLikes ON Articles.id = Userlikes.idArticle WHERE Articles.id = ` + mysql.escape(req.params.id);
 
   //QUERY SELECT
   connection.query(sql,(error, results, fields) => {
@@ -172,7 +173,6 @@ exports.changeArticle = (req, res, next) => {
                   }
                 });
               }
-
             }
           });
         }
@@ -189,7 +189,7 @@ exports.deleteOneArticle = (req, res, next) => {
   let sqlDelete = ``;
 
   let value = [];
-  let valueIfExist = [req.params.id, req.body.userId];
+  let valueIfExist = [req.params.id, req.params.id];
 
   if(!req.body.userId) {
     res.status(500).send("Veuillez définir un utilisateur.");
@@ -209,10 +209,10 @@ exports.deleteOneArticle = (req, res, next) => {
         if (errorSelectRank || resultsSelectRank[0] === undefined) {
           res.status(500).send("Une erreur est survenue lors de la séléction du rang de l'utilisateur.");
         } else {
-          if (resultsSelectRank[0] === 4) {
+          if (resultsSelectRank[0].rank === 4) {
             sqlDelete = `DELETE FROM Articles WHERE id = ?`;
             value = [req.params.id];
-          } else if (resultsSelectRank[0] !== 4) {
+          } else if (resultsSelectRank[0].rank !== 4) {
             sqlDelete = `DELETE FROM Articles WHERE id = ? AND userId = ?`;
             value = [req.params.id, req.body.userId];
           }
@@ -243,10 +243,10 @@ exports.likeOrDislike = (req, res, next) => {
   let likedOrNot = parseInt(req.body.like,10);
   let message = "";
 
-  let sqlSelectArticlesAndUserLikes = `SELECT * FROM Articles INNER JOIN UserLikes ON Articles.id = UserLikes.articleId WHERE Articles.id = ? AND Userlikes.userId = ?`;
+  let sqlSelectArticlesAndUserLikes = `SELECT * FROM Articles INNER JOIN UserLikes ON Articles.id = UserLikes.idArticle WHERE Articles.id = ? AND Userlikes.idUser = ?`;
   let sqlInsert = ``;
   let sqlUpdate = ``;
-  let sqlUpdateUserLikes = `UPDATE UserLikes SET isLike = ? WHERE userId = ? AND articleId = ?`;
+  let sqlUpdateUserLikes = `UPDATE UserLikes SET isLike = ? WHERE idUser = ? AND idArticle = ?`;
 
   let valuesUpdateArticles = [articleId];
 
@@ -269,10 +269,10 @@ exports.likeOrDislike = (req, res, next) => {
     } else if (resultsSelectArticle[0] === undefined) {
 
       if (likedOrNot === 1) {
-        sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
+        sqlInsert = `INSERT INTO UserLikes (idUser, idArticle, isLike) VALUES (?,?,?)`;
         sqlUpdate = `UPDATE Articles SET likes = likes + 1 WHERE id = ?`;
       } else if (likedOrNot === -1) {
-        sqlInsert = `INSERT INTO UserLikes (userId, articleId, isLike) VALUES (?,?,?)`;
+        sqlInsert = `INSERT INTO UserLikes (idUser, idArticle, isLike) VALUES (?,?,?)`;
         sqlUpdate = `UPDATE Articles SET dislikes = dislikes + 1 WHERE id = ?`;
       } else if (likedOrNot === 0) {
         res.status(500).send("Vous n'avez pas d'avis.");
@@ -400,7 +400,7 @@ exports.editCommentary = (req, res, next) => {
           value = [req.body.com, req.params.id, req.params.id];
         } else {
           updateCommentary =`UPDATE Commentary SET createAt = NOW(), com = ? WHERE id = ? AND userId = ?`;
-          value = [req.body.com, req.params.id, req.params.id, req.body.userId];
+          value = [req.body.com, req.params.id, req.body.userId];
         }
       connection.query(updateCommentary, value, (errorCom, resultsCom, fields) => {
         if(errorCom) {
@@ -408,6 +408,7 @@ exports.editCommentary = (req, res, next) => {
         } else if(resultsCom.rowsAffected === 0) {
           res.status(404).send("Le commentaire ou l'utilisateur n'éxiste pas.");
         } else {
+
           res.status(200).send("Le commentaire à bien été modifié.");
         }
       });

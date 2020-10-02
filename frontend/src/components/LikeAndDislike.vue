@@ -12,7 +12,8 @@ import UserService from "@/services/user-service";
 export default {
 name: "LikeAndDislike",
   props: [
-      "article"
+      "article",
+      "isLike"
   ],
   data() {
    return {
@@ -20,6 +21,26 @@ name: "LikeAndDislike",
      vote: {},
      message:''
    };
+  },
+  created() {
+  this.ifVoted = false;
+  },
+  mounted() {
+    const likeBtn = document.getElementsByClassName("button-like");
+    const dislikeBtn = document.getElementsByClassName("button-dislike");
+    let likeBtnClasses = likeBtn[0].classList;
+    let dislikeBtnClasses = dislikeBtn[0].classList;
+
+    if(this.isLike === 0) {
+      likeBtnClasses.remove("button-like-active");
+      dislikeBtnClasses.remove("button-dislike-active");
+    } else if (this.isLike === 1){
+      likeBtnClasses.toggle("button-like-active");
+      this.ifVoted = true;
+    } else if (this.isLike === -1) {
+      dislikeBtnClasses.toggle("button-dislike-active");
+      this.ifVoted = true;
+    }
   },
   methods: {
     displayValue(value) {

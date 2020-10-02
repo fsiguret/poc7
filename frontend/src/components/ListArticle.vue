@@ -3,7 +3,7 @@
     <article class="list-article" @click.prevent="showingDetails">
       <header class="headerListArticle">
         <h2 class="titleArticle">{{article.titleArticle}}</h2>
-        <DisplayHours v-bind:create-at="article.createAt"/>
+        <DisplayHours v-bind:createAt="article.createAt"/>
       </header>
       <div class="content">
         <p class="content-article">{{article.content}}</p>
@@ -61,6 +61,8 @@ name: "ListArticle",
       .titleArticle {
         margin-right: 1rem;
         font-size: 1.5rem;
+        overflow-wrap: break-word;
+        max-width: 80%;
       }
     }
     .content {
@@ -85,4 +87,9 @@ name: "ListArticle",
   }
 }
 
+@media screen and (max-width: 660px){
+  .list {
+    width: 80%;
+  }
+}
 </style>

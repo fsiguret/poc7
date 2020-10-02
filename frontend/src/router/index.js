@@ -31,11 +31,6 @@ Vue.use(VueRouter)
       component: () => import('../views/CreateArticle.vue')
     },
     {
-      path: '/editCom/:id',
-      name: 'EditCom',
-      component:  () => import('../views/EditComment')
-    },
-    {
       path: '/editArticle/:id',
       name: 'EditArticle',
       component: () => import('../views/EditArticle')

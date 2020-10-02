@@ -11,14 +11,17 @@
         </div>
         <div>
           <DisplayHours v-bind:createAt="article.createAt"/>
-          <LikeAndDislike v-bind:article="article"/>
+          <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike"/>
         </div>
       </div>
-      <button class="button detailArticle--article-button" v-if="ifSameUserArticle" @click="deleteArticle(article.id)" type="button">Supprimer</button>
-      <router-link class="button detailArticle--article-button" v-if="ifSameUserArticle" type="button" :to="{ name: 'EditArticle', params: { id: article.id}}">Modifier</router-link>
+      <button class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" @click="deleteArticle(article.id)" type="button">Supprimer</button>
+      <router-link class="button detailArticle--article-button" v-if="ifSameUserArticle || ifAdmin" type="button" :to="{ name: 'EditArticle', params: { id: article.id}}">Modifier</router-link>
     </article>
     <h2>Commentaires</h2>
-    <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" @onDelete="getAllComment(this.article.id)"/>
+    <div v-if="commentary.length === 0">
+      <p>Il n'y a pas de commentaires pour le moment !</p>
+    </div>
+    <Commentary v-else v-for="com in commentary" :key="com.id" v-bind:com="com" @onDelete="getAllComment(this.article.id)"/>
     <h2>Participez vous aussi !</h2>
     <AddCommentary v-bind:articleId="article.id"/>
   </div>
@@ -26,6 +29,7 @@
 
 <script>
 import UserService from "@/services/user-service";
+import AuthService from "@/services/auth-service";
 import Comment from "@/models/Commentary";
 import Commentary from "@/components/Commentary";
 import AddCommentary from "@/components/AddCommentary";
@@ -35,7 +39,8 @@ import DisplayHours from "@/components/DisplayHours";
 export default {
 name: "Article",
   props: [
-      "article"
+      "article",
+      "isLike"
   ],
   components: {
     DisplayHours,
@@ -46,11 +51,25 @@ name: "Article",
   data() {
     return {
       ifSameUserArticle: false,
-      commentary: []
+      ifAdmin:false,
+      commentary: [],
+      userRank:''
     };
   },
   created() {
     let user = JSON.parse(localStorage.getItem('user'));
+
+    AuthService.getUser(user.userId)
+        .then(response => {
+          this.userRank = response.data.results[0].rank;
+          this.ifAdmin = this.userRank === 4;
+        })
+        .catch(error => {
+          this.message =
+              (error.response && error.response.data) ||
+              error.message ||
+              error.toString();
+        });
 
     this.ifSameUserArticle = user.userId === this.article.userId;
 
@@ -131,7 +150,6 @@ name: "Article",
 
       }
     }
-
   }
 }
 </style>

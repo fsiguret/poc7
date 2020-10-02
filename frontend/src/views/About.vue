@@ -15,7 +15,7 @@
           <ValidationProvider name="mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
             <label for="password">Mot de passe</label>
             <input v-model="password" name="password" id="password" type="password" placeholder="Saisissez votre mot de passe.">
-            <input class="button" type="submit" value="Suprimer votre compte">
+            <input class="button supprAccount" type="submit" value="Suprimer votre compte">
             <div v-if="errors[0] !== undefined">
               <p>{{errors[0]}}</p>
             </div>
@@ -23,12 +23,6 @@
           <p>{{ message }}</p>
         </form>
       </ValidationObserver>
-    </section>
-    <section>
-      <h2>Derniers articles posté</h2>
-    </section>
-    <section>
-      <h2>Derniers commentaires posté</h2>
     </section>
   </div>
 </template>
@@ -52,6 +46,7 @@ export default {
 
     AuthService.getUser(user.userId)
         .then(response => {
+          console.log(response)
           this.user = new User(response.data.results[0].userId, response.data.results[0].firstName, response.data.results[0].lastName , response.data.results[0].email, '', response.data.results[0].rank)
         })
         .catch(error => {
@@ -122,6 +117,70 @@ export default {
   }
   .btn-suppr {
     width: 25%;
+  }
+
+}
+
+@media screen and (max-width: 1750px){
+  .infoPerso {
+    width: 60%;
+  }
+}
+@media screen and (max-width: 1460px){
+  .infoPerso {
+    width: 70%;
+  }
+}
+@media screen and (max-width: 1250px){
+  .infoPerso {
+    width: 80%;
+  }
+}
+
+@media screen and (max-width: 1100px){
+  .infoPerso {
+    &-list {
+      li {
+        width: 80%;
+      }
+    }
+  }
+}
+@media screen and (max-width: 1100px){
+  .infoPerso {
+    &-list {
+      li {
+        width: 90%;
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+  }
+}
+
+@media screen and (max-width: 1100px){
+  .infoPerso {
+    width: 90%;
+    padding: 0;
+    &-list {
+      padding: 0.2rem;
+      li {
+        text-align: center;
+        span {
+          width: 100%;
+        }
+      }
+    }
+    .button {
+      width: 50%;
+    }
+    form {
+
+      .supprAccount {
+        width: 100%;
+      }
+    }
+
   }
 
 }

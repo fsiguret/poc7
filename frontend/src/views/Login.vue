@@ -10,7 +10,7 @@
               <p>{{errors[0]}}</p>
             </div>
         </ValidationProvider>
-        <ValidationProvider name="Mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
+        <ValidationProvider name="Mot de passe" :rules="{required: true, regex: /^[a-zA-Z0-9]{10,30}$/}" v-slot="{ errors }">
 
             <label for="password">Mot de passe</label>
             <input type="password" v-model="user.password" name="password" id="password">

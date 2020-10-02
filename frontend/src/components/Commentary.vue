@@ -1,13 +1,14 @@
 <template>
   <div class="commentary">
-    <article class="commentary-article">
+    <article class="commentary-article" v-if="!ifEditComment">
       <header>
         <DisplayHours v-bind:createAt="com.createAt"/>
       </header>
       <p class="commentary-content">{{com.com}}</p>
     </article>
-    <button class="button commentary-button" v-if="ifSameUserCom" v-on:click="deleteCommentary(com.id)">Supprimer</button>
-    <router-link class="button commentary-button" v-if="ifSameUserCom" :to="{ name: 'EditCom', params: {id: com.id}}">Modifier</router-link>
+    <EditCommentary v-if="(ifSameUserCom && ifEditComment) || (ifAdmin && ifEditComment)" v-bind:comId="com.id"/>
+    <button class="button commentary-button" v-if="ifSameUserCom || ifAdmin" @click.prevent="deleteCommentary(com.id)">Supprimer</button>
+    <button class="button commentary-button" v-if="ifSameUserCom || ifAdmin" @click.prevent="showEditCommentary">Modifier</button>
     <p v-if="message">{{message}}</p>
   </div>
 </template>
@@ -15,11 +16,13 @@
 <script>
 import UserService from "@/services/user-service";
 import DisplayHours from "@/components/DisplayHours";
-
+import EditCommentary from "@/components/EditCommentary";
+import AuthService from "@/services/auth-service";
 
 export default {
   name: "Commentary",
   components: {
+    EditCommentary,
     DisplayHours
   },
   props: [
@@ -28,11 +31,25 @@ export default {
   data() {
     return {
       message: '',
-      ifSameUserCom: false
+      ifSameUserCom: false,
+      ifAdmin: false,
+      ifEditComment: false
     };
   },
   created() {
     let user = JSON.parse(localStorage.getItem('user'));
+
+    AuthService.getUser(user.userId)
+        .then(response => {
+          this.userRank = response.data.results[0].rank;
+          this.ifAdmin = this.userRank === 4;
+        })
+        .catch(error => {
+          this.message =
+              (error.response && error.response.data) ||
+              error.message ||
+              error.toString();
+        });
 
     this.ifSameUserCom = user.userId === this.com.userId;
   },
@@ -44,7 +61,7 @@ export default {
       UserService.deleteComment(id, user.userId)
           .then(response => {
             this.message = response.data;
-            this.refreshCommentary();
+            this.$router.push('/');
           })
           .catch(error => {
             this.message =
@@ -53,8 +70,8 @@ export default {
                 error.toString();
           });
     },
-    refreshCommentary() {
-      this.$emit('onDelete');
+    showEditCommentary() {
+      this.ifEditComment = !this.ifEditComment;
     }
   }
 }

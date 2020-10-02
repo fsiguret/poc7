@@ -7,7 +7,7 @@ const middleware = (req, res, next) => {
             .required(),
 
         password: Joi.string()
-            .pattern(new RegExp('^[a-zA-Z0-9]{3,30}$'))
+            .pattern(new RegExp('^[a-zA-Z0-9]{10,30}$'))
             .required()
     });
     const { value, error } = schema.validate(req.body);

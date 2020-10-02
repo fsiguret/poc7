@@ -30,4 +30,11 @@ name: "AddArticle"
       color: white;
     }
   }
+
+@media screen and (max-width: 660px){
+  .addArticle {
+    bottom: 1rem;
+    right: 1rem;
+  }
+}
 </style>
