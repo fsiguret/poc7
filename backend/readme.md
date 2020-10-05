@@ -36,7 +36,7 @@ add manually the rank of the user
 
 ```
 UPDATE Users
-SET rank = the_rank_were_you_want;
+SET rank = the_rank_were_you_want WHERE userId = the_id_of_user;
 ```
 
 ```
