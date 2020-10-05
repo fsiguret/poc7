@@ -1,12 +1,12 @@
-#Backend
+# Backend
 
-##Project setup
+## Project setup
 
 ```
 npm install
 ```
 
-##Start server
+## Start server
 
 ```
 nodemon run server
@@ -18,11 +18,11 @@ or
 npm start server
 ```
 
-##if not images folder
+## if not images folder
 
 create the "images" folder in the "backend" folder.
 
-##Create Database and Tables
+## Create Database and Tables
 
 execute the command line in your Mysql terminal
 
