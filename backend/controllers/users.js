@@ -40,7 +40,7 @@ exports.login = (req, res, next ) => {
                                 token: jwToken.sign(
                                     { userId: results[0].userId },
                                     privateKey,
-                                    { expiresIn: '24h'  }
+                                    { expiresIn: '1h'  }
                                 ),
                                 message: "Connection réussie !"
                             });

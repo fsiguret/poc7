@@ -4,7 +4,7 @@
     <div v-if="articles.length === 0">
       <p>Il n'y a pas d'articles pour le moment !</p>
     </div>
-    <ListArticle v-else v-for="article in articles" :key="article.id" v-bind:article="article" @showingDetail="detailArticle(article.id)"/>
+    <ListArticle v-else v-for="article in articlesSorted.slice().reverse()" :key="article.id" v-bind:article="article" @showingDetail="detailArticle(article.id)"/>
     <AddArticle/>
   </section>
   <section v-else-if="showDetail">
@@ -30,6 +30,7 @@ export  default  {
     return {
       showDetail: false,
       articles: [],
+      articlesSorted: [],
       article: '',
       commentary: [],
       isLike:''
@@ -37,10 +38,10 @@ export  default  {
   },
   created() {
     UserService.getAllArticles()
-
         .then(response => {
           response.data.results.forEach(article => {
             this.articles.push( new Article(article.id, article.userId, article.titleArticle, article.content, article.createAt, article.imageUrl, article.likes, article.dislikes));
+            this.articlesSorted = this.articles.sort((a,b) => new Date(a.createAt) - new Date(b.createAt));
           });
         })
         .catch(error => {

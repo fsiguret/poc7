@@ -15,7 +15,7 @@
           <ValidationProvider name="mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
             <label for="password">Mot de passe</label>
             <input v-model="password" name="password" id="password" type="password" placeholder="Saisissez votre mot de passe.">
-            <input class="button supprAccount" type="submit" value="Suprimer votre compte">
+            <input class="button supprAccount" type="submit" value="Supprimer">
             <div v-if="errors[0] !== undefined">
               <p>{{errors[0]}}</p>
             </div>
@@ -144,6 +144,13 @@ export default {
   form {
     margin-top: 2rem;
     width: 40%;
+
+    @media screen and (max-width: 1060px){
+      .supprAccount {
+        width: 100%;
+        display: inline-block;
+      }
+    }
   }
 
   .button {
