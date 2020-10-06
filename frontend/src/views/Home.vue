@@ -4,7 +4,7 @@
     <div v-if="articles.length === 0">
       <p>Il n'y a pas d'articles pour le moment !</p>
     </div>
-    <ListArticle v-else v-for="article in articlesSorted.slice().reverse()" :key="article.id" v-bind:article="article" @showingDetail="detailArticle(article.id)"/>
+    <ListArticle v-else v-for="article in articlesSorted.slice().reverse()" :key="article.id" v-bind:article="article" v-bind:isLike="isLike" @showingDetail="detailArticle(article.id)"/>
     <AddArticle/>
   </section>
   <section v-else-if="showDetail">

@@ -8,7 +8,9 @@
       <div class="content">
         <p class="content-article">{{article.content}}</p>
         <img class="content-img" v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
+        <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike"/>
       </div>
+
     </article>
     <div class="list-comment">
       <font-awesome-icon icon="comments" @click="showCommentary"></font-awesome-icon>
@@ -20,14 +22,17 @@
 <script>
 import ListCommentary from "@/components/ListCommentary";
 import DisplayHours from "@/components/DisplayHours";
+import LikeAndDislike from "@/components/LikeAndDislike";
 export default {
 name: "ListArticle",
   components: {
+    LikeAndDislike,
     ListCommentary,
     DisplayHours
   },
   props: [
-      "article"
+      "article",
+      "isLike"
   ],
   data() {
     return {
@@ -78,6 +83,11 @@ name: "ListArticle",
 
       &-img {
         width: 30%;
+      }
+
+      ul {
+        display: flex;
+        justify-content: flex-end;
       }
     }
   }
