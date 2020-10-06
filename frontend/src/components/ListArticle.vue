@@ -3,6 +3,7 @@
     <article class="list-article" @click.prevent="showingDetails">
       <header class="headerListArticle">
         <h2 class="titleArticle">{{article.titleArticle}}</h2>
+        <ArticleOwner v-bind:id="article.userId"/>
         <DisplayHours v-bind:createAt="article.createAt"/>
       </header>
       <div class="content">
@@ -23,9 +24,11 @@
 import ListCommentary from "@/components/ListCommentary";
 import DisplayHours from "@/components/DisplayHours";
 import LikeAndDislike from "@/components/LikeAndDislike";
+import ArticleOwner from "@/components/ArticleOwner";
 export default {
 name: "ListArticle",
   components: {
+    ArticleOwner,
     LikeAndDislike,
     ListCommentary,
     DisplayHours

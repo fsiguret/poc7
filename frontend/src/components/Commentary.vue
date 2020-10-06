@@ -2,6 +2,7 @@
   <div class="commentary">
     <article class="commentary-article" v-if="!ifEditComment">
       <header>
+        <ArticleOwner v-bind:id="com.userId"/>
         <DisplayHours v-bind:createAt="com.createAt"/>
       </header>
       <p class="commentary-content">{{com.com}}</p>
@@ -19,16 +20,18 @@
 import UserService from "@/services/user-service";
 import DisplayHours from "@/components/DisplayHours";
 import EditCommentary from "@/components/EditCommentary";
+import ArticleOwner from "@/components/ArticleOwner";
 
 export default {
   name: "Commentary",
   components: {
+    ArticleOwner,
     EditCommentary,
     DisplayHours
   },
   props: [
     "com",
-    "userRank"
+    "user"
   ],
   data() {
     return {
@@ -41,7 +44,7 @@ export default {
   created() {
     let user = JSON.parse(localStorage.getItem('user'));
 
-    this.ifAdmin = this.userRank === 4;
+    this.ifAdmin = this.user.rank === 4;
 
     this.ifSameUserCom = user.userId === this.com.userId;
   },
@@ -84,11 +87,11 @@ export default {
     width: 100%;
   }
 
-  &-article header {
-    text-align: left;
-    p {
-      padding: 1rem;
-      font-size: 0.8rem;
+  &-article {
+    header {
+      display: flex;
+      align-items: center;
+      padding-left: 0.5rem;
     }
   }
 

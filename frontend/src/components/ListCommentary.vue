@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" v-bind:userRank="userRank"/>
+    <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" v-bind:user="user"/>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
@@ -10,6 +10,7 @@ import Commentary from "@/components/Commentary";
 import UserService from "@/services/user-service";
 import Comment from "@/models/Commentary";
 import AuthService from "@/services/auth-service";
+import User from "@/models/User";
 
 export default {
   name: "ListCommentary",
@@ -23,7 +24,7 @@ export default {
     return {
       commentary: [],
       message: '',
-      userRank: ''
+      user: ''
     }
   },
   created() {
@@ -31,7 +32,8 @@ export default {
 
     AuthService.getUser(user.userId)
         .then(response => {
-          this.userRank = response.data.results[0].rank;
+          const result = response.data.results[0];
+          this.user = new User(result.userId, result.firstName, result.lastName, '', '', result.rank);
         })
         .catch(error => {
           this.message =
