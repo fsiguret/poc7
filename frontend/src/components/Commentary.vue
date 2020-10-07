@@ -12,7 +12,7 @@
       <button class="button commentary-button" v-if="ifSameUserCom || ifAdmin" @click.prevent="deleteCommentary(com.id)">Supprimer</button>
       <button class="button commentary-button" v-if="ifSameUserCom || ifAdmin" @click.prevent="showEditCommentary">Modifier</button>
     </div>
-    <p v-if="message">{{message}}</p>
+    <p v-if="message !== null">{{message}}</p>
   </div>
 </template>
 
@@ -31,7 +31,7 @@ export default {
   },
   props: [
     "com",
-    "user"
+    "userRank"
   ],
   data() {
     return {
@@ -44,7 +44,7 @@ export default {
   created() {
     let user = JSON.parse(localStorage.getItem('user'));
 
-    this.ifAdmin = this.user.rank === 4;
+    this.ifAdmin = this.userRank === 4;
 
     this.ifSameUserCom = user.userId === this.com.userId;
   },

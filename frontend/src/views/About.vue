@@ -2,7 +2,9 @@
   <div class="profile">
     <h1>Votre Profil</h1>
     <section class="infoPerso">
+      
       <h2>Informations personnelles</h2>
+
       <ul class="infoPerso-list">
         <li><span>Nom : </span><span>{{user.firstName}}</span></li>
         <li><span>Prénom : </span><span>{{user.lastName}}</span></li>
@@ -10,18 +12,27 @@
       </ul>
 
       <button class="button btn-suppr" v-if="!wantSuppr" @click.prevent="showValidDelete">Suprimer votre compte</button>
+
       <ValidationObserver v-if="wantSuppr" v-slot="{ handleSubmit }">
+
         <form @submit.prevent="handleSubmit(deleteUser)">
+
           <ValidationProvider name="mot de passe" rules="required|min:3|max:30|alpha_num" v-slot="{ errors }">
+
             <label for="password">Mot de passe</label>
             <input v-model="password" name="password" id="password" type="password" placeholder="Saisissez votre mot de passe.">
             <input class="button supprAccount" type="submit" value="Supprimer">
+
             <div v-if="errors[0] !== undefined">
               <p>{{errors[0]}}</p>
             </div>
+
           </ValidationProvider>
+
           <p>{{ message }}</p>
+
         </form>
+
       </ValidationObserver>
     </section>
   </div>
@@ -46,7 +57,7 @@ export default {
 
     AuthService.getUser(user.userId)
         .then(response => {
-          this.user = new User(response.data.results[0].userId, response.data.results[0].firstName, response.data.results[0].lastName , response.data.results[0].email, '', response.data.results[0].rank)
+          this.user = new User(response.data.results.userId, response.data.results.firstName, response.data.results.lastName , response.data.results.email, '', response.data.results.rank)
         })
         .catch(error => {
           this.message =
@@ -58,7 +69,6 @@ export default {
   methods: {
     deleteUser() {
       let data = {
-        email: this.user.email,
         userId: this.user.userId,
         password: this.password
       };

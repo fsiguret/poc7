@@ -4,7 +4,6 @@ const fs = require('fs');
 
 exports.getAllArticles = (req, res, next) => {
 
-  // let sql = `SELECT * FROM Articles`;
   let sql = `SELECT * FROM Articles`;
 
   //QUERY SELECT
@@ -12,6 +11,23 @@ exports.getAllArticles = (req, res, next) => {
     if (error) {
       res.status(500).send("Une erreur serveur est survenue. " + error);
     } else if (results[0] === null || results[0] === undefined){
+      res.status(404).send("Aucuns articles trouvés.");
+    } else {
+      res.status(200).json({ results });
+    }
+  });
+};
+
+exports.getAllArticleAndLikes = (req, res, next) => {
+
+  let sql = `SELECT * FROM Articles LEFT JOIN UserLikes ON Articles.id = Userlikes.idArticle`;
+
+  //QUERY SELECT
+  connection.query(sql, (error, results, fields) => {
+    if (error) {
+      res.status(500).send("Une erreur serveur est survenue. " + error);
+    }
+    else if (results === null || results[0] === undefined){
       res.status(404).send("Aucuns articles trouvés.");
     } else {
       res.status(200).json({ results });

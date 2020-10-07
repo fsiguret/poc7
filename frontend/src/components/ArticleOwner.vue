@@ -24,7 +24,7 @@ name: "ArticleOwner",
     AuthService.getUser(this.id)
         .then(response => {
           this.message = null;
-          const result = response.data.results[0];
+          const result = response.data.results;
           this.user = new User(this.id, result.firstName, result.lastName);
         })
         .catch(error => {

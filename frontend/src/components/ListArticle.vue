@@ -9,12 +9,14 @@
       <div class="content">
         <p class="content-article">{{article.content}}</p>
         <img class="content-img" v-if="article.imageUrl" v-bind:src="article.imageUrl" alt="">
-        <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike"/>
       </div>
 
     </article>
     <div class="list-comment">
-      <font-awesome-icon icon="comments" @click="showCommentary"></font-awesome-icon>
+      <div>
+        <font-awesome-icon icon="comments" @click="showCommentary"></font-awesome-icon>
+        <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike" v-bind:articlesLiked="articlesLiked"/>
+      </div>
       <ListCommentary v-if="showComment" v-bind:articleId="article.id"/>
     </div>
   </div>
@@ -25,6 +27,7 @@ import ListCommentary from "@/components/ListCommentary";
 import DisplayHours from "@/components/DisplayHours";
 import LikeAndDislike from "@/components/LikeAndDislike";
 import ArticleOwner from "@/components/ArticleOwner";
+
 export default {
 name: "ListArticle",
   components: {
@@ -35,13 +38,16 @@ name: "ListArticle",
   },
   props: [
       "article",
-      "isLike"
+      "isLike",
+      "articlesLiked"
   ],
   data() {
     return {
-      showComment: false
+      showComment: false,
+      articleLike:''
     };
-  },methods: {
+  },
+  methods: {
     showingDetails() {
       this.$emit('showingDetail');
     },
@@ -99,11 +105,16 @@ name: "ListArticle",
     padding: 1rem;
     text-align: left;
 
-    svg {
-      cursor: pointer;
+    div {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      svg {
+        cursor: pointer;
 
-      &:hover {
-        transform: scale(1.1);
+        &:hover {
+          transform: scale(1.1);
+        }
       }
     }
   }

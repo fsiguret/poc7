@@ -1,7 +1,7 @@
 <template>
   <ul>
-    <li><font-awesome-icon @click.prevent="like" icon="thumbs-up" class="button button-like"/><span>{{displayValue(article.likes)}}</span></li>
-    <li><font-awesome-icon @click.prevent="dislike" icon="thumbs-down" class="button button-dislike"/><span>{{displayValue(article.dislikes)}}</span></li>
+    <li><font-awesome-icon @click.prevent="like" icon="thumbs-up" class="button button-like" v-bind:class="[ifLiked ? 'button-like-active' : '']"/><span>{{displayValue(article.likes)}}</span></li>
+    <li><font-awesome-icon @click.prevent="dislike" icon="thumbs-down" class="button button-dislike" v-bind:class="[ifDisliked ? 'button-dislike-active' : '']"/><span>{{displayValue(article.dislikes)}}</span></li>
     <li v-if="message !== null">{{message}}</li>
   </ul>
 </template>
@@ -10,35 +10,42 @@
 import UserService from "@/services/user-service";
 
 export default {
-name: "LikeAndDislike",
+  name: "LikeAndDislike",
   props: [
       "article",
-      "isLike"
+      "isLike",
+      "articlesLiked"
   ],
   data() {
-   return {
-     ifVoted: false,
-     vote: {},
-     message:''
-   };
-  },
-  created() {
-  this.ifVoted = false;
+      return {
+        ifVoted: false,
+        vote: {},
+        message:'',
+        ifLiked: false,
+        ifDisliked: false
+    };
   },
   mounted() {
-    const likeBtn = document.getElementsByClassName("button-like");
-    const dislikeBtn = document.getElementsByClassName("button-dislike");
-    let likeBtnClasses = likeBtn[0].classList;
-    let dislikeBtnClasses = dislikeBtn[0].classList;
 
-    if(this.isLike === 0) {
-      likeBtnClasses.remove("button-like-active");
-      dislikeBtnClasses.remove("button-dislike-active");
-    } else if (this.isLike === 1){
-      likeBtnClasses.toggle("button-like-active");
+    if(this.isLike === '') {
+      this.articlesLiked.forEach(data => {
+        if(this.article.id === data.articleId) {
+          if(data.isLike === 1) {
+            this.ifLiked = true;
+            this.ifVoted = true;
+          } else if( data.isLike === -1) {
+            this.ifDisliked = true;
+            this.ifVoted = true;
+          }
+        }
+      });
+    }
+
+    if (this.isLike === 1) {
+      this.ifLiked = true;
       this.ifVoted = true;
     } else if (this.isLike === -1) {
-      dislikeBtnClasses.toggle("button-dislike-active");
+      this.ifDisliked = true;
       this.ifVoted = true;
     }
   },
@@ -47,14 +54,15 @@ name: "LikeAndDislike",
       return value;
     },
     like() {
-      const likeBtn = document.getElementsByClassName("button-like");
-      let likeBtnClasses = likeBtn[0].classList;
+
       let user = JSON.parse(localStorage.getItem('user'));
       this.message = '';
 
       if (!this.ifVoted) {
-        likeBtnClasses.toggle("button-like-active");
+
         this.ifVoted = true;
+        this.ifLiked = true;
+
         this.vote = { userId: user.userId, like: "1" };
 
         UserService.putLikeOrDislike(this.article.id, this.vote)
@@ -68,8 +76,9 @@ name: "LikeAndDislike",
                   error.toString();
             });
 
-      } else if(likeBtnClasses.contains("button-like-active")) {
-        likeBtnClasses.remove("button-like-active");
+      } else if(this.ifVoted && this.ifLiked) {
+
+        this.ifLiked= false;
         this.ifVoted = false;
         this.vote = { userId: user.userId, like: "0" };
 
@@ -86,13 +95,11 @@ name: "LikeAndDislike",
       }
     },
     dislike() {
-      const dislikeBtn = document.getElementsByClassName("button-dislike");
-      let dislikeBtnClasses = dislikeBtn[0].classList;
       let user = JSON.parse(localStorage.getItem('user'));
       this.message = '';
 
       if (!this.ifVoted) {
-        dislikeBtnClasses.toggle("button-dislike-active");
+        this.ifDisliked = true;
         this.ifVoted = true;
         this.vote = { userId: user.userId, like: "-1" };
 
@@ -106,8 +113,8 @@ name: "LikeAndDislike",
                   error.message ||
                   error.toString();
             });
-      } else if(dislikeBtnClasses.contains("button-dislike-active")){
-        dislikeBtnClasses.remove("button-dislike-active");
+      } else if(this.ifVoted && this.ifDisliked){
+        this.ifDisliked = false;
         this.ifVoted = false;
         this.vote = { userId: user.userId, like: "0" };
 
@@ -130,10 +137,11 @@ name: "LikeAndDislike",
 <style lang="scss" scoped>
 ul {
   list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
   @media screen and (max-width: 1000px){
-    display: flex;
-    justify-content: center;
     padding: 0;
   }
 

@@ -10,7 +10,7 @@ name: "DisplayHours",
     "createAt"
   ],
   created() {
-    moment.locale('fr', {
+    moment.updateLocale('fr', {
       relativeTime: {
         past: 'il y a %s',
         s: 'quelques secondes',

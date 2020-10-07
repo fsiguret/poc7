@@ -52,18 +52,18 @@ name: "Login",
   methods: {
 
     handleLogin() {
-      this.$store.dispatch('auth/login', this.user)
-          .then(res => {
-            if(res.status === 200) {
-              this.message = res.data.message;
-              this.$router.push('/home');
-            } else {
-              this.message = res;
-            }
-          })
-          .catch(error => {
-            this.message = error;
-          })
+        this.$store.dispatch('auth/login', this.user)
+            .then(res => {
+              if(res.status !== 200) {
+                this.message = res;
+              } else {
+                this.message = res.data.message;
+                this.$router.push('/home');
+              }
+            })
+            .catch(error => {
+              this.message = error;
+            })
     }
   }
 }

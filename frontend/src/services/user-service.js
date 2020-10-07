@@ -17,7 +17,11 @@ class UserService {
     }
 
     getOneComment(id) {
-        return axios.get(API_URL + "comment/" + id, {headers: authHeader() });
+        return axios.get(API_URL + "comment/" + id, { headers: authHeader() });
+    }
+
+    getAllLikes() {
+        return axios.get(API_URL + 'articlesLiked', { headers: authHeader() });
     }
 
     postArticle(data) {

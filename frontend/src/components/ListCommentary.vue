@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" v-bind:user="user"/>
+    <Commentary v-for="com in commentary" :key="com.id" v-bind:com="com" v-bind:userRank="user.rank"/>
     <p v-if="message">{{ message }}</p>
   </div>
 </template>
@@ -32,7 +32,7 @@ export default {
 
     AuthService.getUser(user.userId)
         .then(response => {
-          const result = response.data.results[0];
+          const result = response.data.results;
           this.user = new User(result.userId, result.firstName, result.lastName, '', '', result.rank);
         })
         .catch(error => {

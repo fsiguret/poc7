@@ -63,7 +63,8 @@ name: "Article",
 
     AuthService.getUser(user.userId)
         .then(response => {
-          this.userRank = response.data.results[0].rank;
+
+          this.userRank = response.data.results.rank;
           this.ifAdmin = this.userRank === 4;
         })
         .catch(error => {
@@ -79,7 +80,7 @@ name: "Article",
   },
   methods: {
     homePage() {
-      this.$emit('closeDetail');
+      this.$router.push('/');
     },
 
     deleteArticle(id) {

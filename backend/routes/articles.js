@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 const multer = require('../middleware/multer-configuration');
 
 router.get('/', auth, articlesCtrl.getAllArticles);
+router.get('/articlesLiked', auth, articlesCtrl.getAllArticleAndLikes);
 router.get('/:id', auth, articlesCtrl.getOneArticle);
 router.get('/:id/comment', auth, articlesCtrl.getCommentByArticle);
 router.get('/comment/:id', auth, articlesCtrl.getOneComment);

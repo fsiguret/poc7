@@ -2,7 +2,7 @@
   <div>
     <a href="#nav" class="open"><font-awesome-icon class="burger" icon="bars"></font-awesome-icon></a>
     <nav id="nav">
-      <div v-if="isLogged">
+      <div v-if="ifLogged">
         <a href="#" class="close"><font-awesome-icon icon="times"></font-awesome-icon></a>
         <div>
           <router-link to="/home">Accueil</router-link>
@@ -10,7 +10,7 @@
           <a href @click.prevent="logOut">Déconnexion</a>
         </div>
       </div>
-      <div v-else>
+      <div v-else-if="!ifLogged">
         <a href="#" class="close"><font-awesome-icon icon="times"></font-awesome-icon></a>
         <div>
           <router-link to="/">Connexion</router-link>
@@ -27,6 +27,11 @@ name: "NavBar",
   props: [
       "isLogged"
   ],
+  computed: {
+    ifLogged() {
+      return this.isLogged;
+    }
+  },
   methods: {
     logOut() {
       this.$store.dispatch('auth/logout');
