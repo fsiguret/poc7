@@ -13,7 +13,7 @@
 
     </article>
     <div class="list-comment">
-      <div>
+      <div class="list-comment-addon">
         <font-awesome-icon icon="comments" @click="showCommentary"></font-awesome-icon>
         <LikeAndDislike v-bind:article="article" v-bind:isLike="isLike" v-bind:articlesLiked="articlesLiked"/>
       </div>
@@ -105,7 +105,7 @@ name: "ListArticle",
     padding: 1rem;
     text-align: left;
 
-    div {
+    &-addon {
       display: flex;
       justify-content: space-between;
       align-items: center;
