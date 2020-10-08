@@ -135,7 +135,7 @@ exports.deleteUser = (req, res, next ) => {
                                const ifUndefined = (!(resultsSelectArticles[0] === null || resultsSelectArticles[0] === undefined));
 
                                if(ifUndefined) {
-                                   if(resultsSelectArticles[0].imageUrl !== undefined) {
+                                   if(resultsSelectArticles[0].imageUrl !== null) {
                                        deleteImg.deleteImg(resultsSelectArticles[0].imageUrl);
                                    }
                                }
